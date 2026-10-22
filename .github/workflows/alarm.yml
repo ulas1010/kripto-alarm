@@ -1,0 +1,62 @@
+name: Kripto Onay Alarmi
+
+on:
+  schedule:
+    - cron: "1,16,31,46 * * * *"   # 15 dakikada bir tarama (mum kapanışından 1 dk sonra)
+    - cron: "53 5 * * *"           # Her sabah ~08:53 (İstanbul) günlük özet
+  workflow_dispatch:
+    inputs:
+      mod:
+        description: "Ne yapılsın?"
+        type: choice
+        default: test
+        options: [test, tara, ozet]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kripto-alarm
+  cancel-in-progress: false
+
+jobs:
+  calistir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Paketleri kur
+        run: pip install -r requirements.txt
+
+      - name: Modu belirle
+        id: mod
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mod=${{ inputs.mod }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "53 5 * * *" ]; then
+            echo "mod=ozet" >> "$GITHUB_OUTPUT"
+          else
+            echo "mod=tara" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Botu çalıştır
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python tarayici.py --mod "${{ steps.mod.outputs.mod }}"
+
+      - name: Gönderilen sinyalleri kaydet
+        run: |
+          if ! git diff --quiet durum.json; then
+            git config user.name "kripto-alarm-bot"
+            git config user.email "kripto-alarm-bot@users.noreply.github.com"
+            git add durum.json
+            git commit -m "durum güncellendi"
+            git push || (git pull --rebase && git push)
+          fi
