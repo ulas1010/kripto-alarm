@@ -723,16 +723,23 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
         tg.foto(dosya, ek + "\n".join(satir))
 
 
+def gh_not(seviye, mesaj):
+    """GitHub Actions ekranında görünen kısa not (error/warning/notice)."""
+    tek = str(mesaj).replace("\n", " | ")[:900]
+    print(f"::{seviye}::{tek}", flush=True)
+
+
 def calistir(mod: str):
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     gecici = KOK / "_grafikler"
     gecici.mkdir(exist_ok=True)
 
+    gh_not("notice", f"mod={mod} token={'var' if token else 'YOK'} chat_id={'var' if chat_id else 'yok'}")
     if token and not chat_id:
         bulunan = Telegram(token, None).chat_bul()
         if not bulunan:
-            print("HATA: Chat ID bulunamadı. Telegram'da botuna /start yaz, sonra tekrar çalıştır.")
+            gh_not("error", "Chat ID bulunamadi. Telegram'da kendi botunu acip Baslat'a (/start) bas, sonra testi tekrar calistir.")
             sys.exit(1)
         chat_id = str(bulunan)
         Telegram(token, chat_id).mesaj(
@@ -760,9 +767,9 @@ def calistir(mod: str):
         try:
             analizler[sembol] = sembol_analiz(sembol)
         except Exception as e:  # noqa: BLE001
-            print(f"{sembol} analiz edilemedi: {e}")
+            gh_not("warning", f"{sembol} analiz edilemedi: {e}")
     if not analizler:
-        print("Hiçbir veri alınamadı.")
+        gh_not("error", "Hicbir borsadan veri alinamadi.")
         sys.exit(1)
 
     if mod == "test":
@@ -817,4 +824,11 @@ def calistir(mod: str):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--mod", default="tara", choices=["tara", "ozet", "test"])
-    calistir(p.parse_args().mod)
+    try:
+        calistir(p.parse_args().mod)
+    except SystemExit:
+        raise
+    except Exception as e:  # noqa: BLE001
+        import traceback
+        gh_not("error", f"{type(e).__name__}: {e} :: {traceback.format_exc()[-600:]}")
+        raise
