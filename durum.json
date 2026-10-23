@@ -1,6 +1,7 @@
 {
  "gonderilen": [
-  "BTCUSDT|1h|mitigation|long|2026-10-23T02:00"
+  "BTCUSDT|1h|mitigation|long|2026-10-23T02:00",
+  "ETHUSDT|15m|breaker|short|2026-10-23T09:15"
  ],
  "son_kalp_atisi": "2026-10-22"
 }
