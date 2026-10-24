@@ -2,8 +2,9 @@ name: Kripto Onay Alarmi
 
 on:
   schedule:
-    - cron: "1,16,31,46 * * * *"   # 15 dakikada bir tarama (mum kapanışından 1 dk sonra)
-    - cron: "53 5 * * *"           # Her sabah ~08:53 (İstanbul) günlük özet
+    # Asıl tetikleyici cron-job.org (15 dakikada bir). Bu satır sadece yedek;
+    # GitHub'ın kendi zamanlayıcısı saatlerce atlayabildiği için tek başına güvenilmez.
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       mod:
@@ -25,6 +26,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # her zaman en güncel durum.json ile başla (çift mesajı önler)
 
       - uses: actions/setup-python@v5
         with:
@@ -39,8 +42,6 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "mod=${{ inputs.mod }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "53 5 * * *" ]; then
-            echo "mod=ozet" >> "$GITHUB_OUTPUT"
           else
             echo "mod=tara" >> "$GITHUB_OUTPUT"
           fi

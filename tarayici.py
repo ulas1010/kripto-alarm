@@ -799,7 +799,9 @@ def calistir(mod: str):
                 isaretle(s.kimlik)
 
     elif mod == "ozet":
-        ozet_gonder(tg, analizler, gecici, ek="☀️ <b>Günlük özet</b>\n")
+        if durum.get("son_ozet") != datetime.now(TR_SAAT).strftime("%Y-%m-%d"):
+            ozet_gonder(tg, analizler, gecici, ek="☀️ <b>Günlük özet</b>\n")
+            durum["son_ozet"] = datetime.now(TR_SAAT).strftime("%Y-%m-%d")
 
     else:  # tara
         yeni = 0
@@ -824,6 +826,11 @@ def calistir(mod: str):
                     tg.foto(d, sinyal_metni(s))
                     yeni += 1
         print(f"Tarama bitti. Yeni sinyal: {yeni}")
+        # Günlük özet: her gün 09:00'dan sonraki ilk taramada bir kez gönderilir
+        bugun = datetime.now(TR_SAAT)
+        if ayarlar.GUNLUK_OZET and bugun.hour >= 9 and durum.get("son_ozet") != bugun.strftime("%Y-%m-%d"):
+            ozet_gonder(tg, analizler, gecici, ek="☀️ <b>Günlük özet</b>\n")
+            durum["son_ozet"] = bugun.strftime("%Y-%m-%d")
 
     simdi = datetime.now(timezone.utc)
     durum["gonderilen"] = gonderilen_liste
