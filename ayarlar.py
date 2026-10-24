@@ -33,3 +33,7 @@ MIN_RISK_ODUL = 1.0
 
 # Günlük özet mesajı gönderilsin mi (her sabah ~09:00)
 GUNLUK_OZET = True
+
+# Yapı oluştuktan en fazla kaç dakika sonra alarm gönderilsin.
+# Bundan daha geç fark edilen yapılar (fiyat çoktan kaçmış olabilir) GÖNDERİLMEZ.
+MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30}

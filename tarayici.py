@@ -596,6 +596,12 @@ def yuzde(a, b):
     return f"{(b - a) / a * 100:+.2f}%"
 
 
+def gecikme_dk(s: Sinyal) -> int:
+    """Yapının oluştuğu mumun kapanışından bu yana geçen dakika."""
+    kapanis = pd.Timestamp(s.zaman, tz="UTC") + pd.Timedelta(minutes=TF_DAKIKA[s.tf])
+    return int((pd.Timestamp.now(tz="UTC") - kapanis).total_seconds() // 60)
+
+
 def sinyal_metni(s: Sinyal, ornek=False) -> str:
     emoji = "🟢" if s.yon == "long" else "🔴"
     yon = "LONG adayı" if s.yon == "long" else "SHORT adayı"
@@ -620,7 +626,9 @@ def sinyal_metni(s: Sinyal, ornek=False) -> str:
         f"Stop: <b>{fmt(s.stop)}</b> ({yuzde(s.giris, s.stop)})",
         f"Hedef 1: {fmt(s.tp1)} (R {s.rr1})",
         f"Hedef 2: {fmt(s.tp2)} (R {s.rr2})",
-        f"Güç: {'★' * s.puan}{'☆' * (5 - s.puan)}   •   Mum kapanışı: {zaman_tr.strftime('%d.%m %H:%M')}",
+        f"Güç: {'★' * s.puan}{'☆' * (5 - s.puan)}",
+        f"⏱️ Yapı {zaman_tr.strftime('%H:%M')} mum kapanışında oluştu"
+        + ("" if ornek else f" ({gecikme_dk(s)} dk önce)"),
         "",
         "⚠️ Otomatik tespit. Grafiği kendin kontrol et, stopsuz işlem açma. Yatırım tavsiyesi değildir.",
     ]
@@ -804,6 +812,10 @@ def calistir(mod: str):
                     if s.kimlik in gonderilen:
                         continue
                     isaretle(s.kimlik)
+                    gec = gecikme_dk(s)
+                    if gec > ayarlar.MAKS_GECIKME_DAKIKA.get(tf, 30):
+                        gh_not("notice", f"Geç kalınmış sinyal gönderilmedi ({gec} dk): {s.kimlik}")
+                        continue
                     if not hala_gecerli(s, df):
                         continue
                     d = grafik_ciz(df, s, a["bolgeler"],

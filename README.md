@@ -64,6 +64,6 @@ Bundan sonrası otomatik çalışır:
 GitHub'da dosyayı açıp kalem simgesine basman ve **Commit changes** demen yeterli.
 
 ## Bilmen gerekenler
-- GitHub'ın zamanlayıcısı yoğun saatlerde 5-15 dakika gecikebilir. Alarm her zaman mum kapanışının hemen ardından gelmeyebilir.
+- GitHub'ın kendi zamanlayıcısı güvenilir değil, saatlerce atlayabiliyor. Bu yüzden bot, yapı oluştuktan 20-30 dakikadan geç fark ettiği sinyalleri hiç göndermez (`ayarlar.py` → `MAKS_GECIKME_DAKIKA`). Her mesajda yapının kaç dakika önce oluştuğu yazar.
 - Bot sinyalin bayatlayıp bayatlamadığını kontrol eder. Fiyat stopa veya ilk hedefe çoktan gittiyse alarm göndermez.
 - Otomatik tespit bir insanın gözü kadar iyi değildir. Gelen her alarmı Efloud'un videodaki kurallarıyla grafikte doğrula.
