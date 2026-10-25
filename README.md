@@ -1,5 +1,11 @@
 # Kripto Onay (Confirmation) Alarmı
 
+> **Güncel durum (25.10.2026):** Bot **İZLEME** modunda çalışıyor. 6 aylık backtest'te otomatik
+> sinyaller kârsız çıktı (sinyal başına ortalama -0,26R). Bu yüzden artık işlem sinyali gönderilmiyor.
+> Bot sadece fiyat güçlü bir günlük/4 saatlik bölgeye geldiğinde haber veriyor, onay yapısını sen arıyorsun.
+> Mod `ayarlar.py` → `CALISMA_MODU` ile değiştirilebilir. Backtest sonuçları: `backtest/sonuc.md`.
+
+
 Efloud'un **Confirmation (Onay) Mekanizmaları** videosundaki yapıları BTC ve ETH'de otomatik arar.
 Bir yapı oluştuğunda Telegram'a **grafikli** bir mesaj gönderir.
 

@@ -499,7 +499,7 @@ def hala_gecerli(s: Sinyal, df) -> bool:
 # ----------------------------------------------------------------------------
 # GRAFİK
 # ----------------------------------------------------------------------------
-def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140):
+def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vurgu=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -540,7 +540,7 @@ def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140):
     for b in bolgeler:
         if b.ust < ymin - pad or b.alt > ymax + pad:
             continue
-        vurgulu = s is not None and abs(b.alt - s.bolge_alt) < 1e-9
+        vurgulu = (s is not None and abs(b.alt - s.bolge_alt) < 1e-9) or (vurgu is not None and b is vurgu)
         ax.axhspan(b.alt, b.ust, color="#f0b90b" if vurgulu else "#5d6b8a",
                    alpha=0.28 if vurgulu else 0.15, zorder=0)
         ax.text(1, min(b.ust, ymax + pad * 0.6), f" {b.etiket} (güç {b.puan})", color=YAZI,
@@ -731,6 +731,87 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
         tg.foto(dosya, ek + "\n".join(satir))
 
 
+# ----------------------------------------------------------------------------
+# İZLEME MODU: işlem sinyali yok, sadece "fiyat önemli bölgeye geldi, grafiğe bak"
+# ----------------------------------------------------------------------------
+def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
+    coin = sembol.replace("USDT", "/USDT")
+    destek = tur == "destek"
+    if trend == "yatay / kararsız":
+        trend_not = "yatay piyasa → onay yapıları burada en anlamlı"
+    else:
+        ters = (trend == "düşüş" and destek) or (trend == "yükseliş" and not destek)
+        trend_not = (f"{trend} → buradan {'long' if destek else 'short'} trend TERSİ olur, "
+                     "onay şart ve hedefe sadık kal" if ters else
+                     f"{trend} → buradan {'long' if destek else 'short'} trend yönünde olur")
+    if destek:
+        bak = ["• <b>Breaker:</b> bölgede dip → tepe → daha düşük dip (likidite alımı), sonra o tepenin üstünde kapanış",
+               "• <b>Mitigation:</b> eski dip bozulmadan daha yüksek dip, sonra tepenin üstünde kapanış",
+               "• <b>SFP:</b> fitil eski dibin altına sarkıp mum üstünde kapanır + ardından yeşil mum",
+               "• <b>Ters senaryo:</b> bölge sert kırmızı mumla aşağı kırılır, geri test edip altında kalırsa → destek kaybı (short fikri)"]
+    else:
+        bak = ["• <b>Breaker:</b> bölgede tepe → dip → daha yüksek tepe (likidite alımı), sonra o dibin altında kapanış",
+               "• <b>Mitigation:</b> eski tepe aşılmadan daha düşük tepe, sonra dibin altında kapanış",
+               "• <b>SFP:</b> fitil eski tepenin üstüne çıkıp mum altında kapanır + ardından kırmızı mum",
+               "• <b>Ters senaryo:</b> bölge sert yeşil mumla yukarı kırılır, geri test edip üstünde kalırsa → direnç kazanımı (long fikri)"]
+    return "\n".join([
+        f"📍 <b>{coin} • {tur.upper()} bölgesine geldi</b>",
+        f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket}, güç {b.puan})",
+        f"Fiyat: {fmt(fiyat)}",
+        f"Günlük trend: {trend_not}",
+        "",
+        "<b>15dk / 1 saatlikte şunlardan birini ara:</b>",
+        *bak,
+        "",
+        "Onay yoksa işlem yok. Stop, yapının bozulduğu noktanın ötesine.",
+        "ℹ️ Bu bir işlem sinyali değil, sadece izleme uyarısıdır.",
+    ])
+
+
+def izleme_tara(tg, analizler, durum, gecici) -> int:
+    kayit = durum.setdefault("izleme", [])  # [{"sembol","orta","zaman"}]
+    simdi = pd.Timestamp.now(tz="UTC")
+    bekleme = pd.Timedelta(hours=ayarlar.IZLEME_TEKRAR_SAAT)
+    kayit[:] = [k for k in kayit if simdi - pd.Timestamp(k["zaman"]) < bekleme]
+    gonderilen = 0
+    for sembol, a in analizler.items():
+        d = a["ltf"]["15m"] if "15m" in a["ltf"] else next(iter(a["ltf"].values()))
+        if len(d) < 3:
+            continue
+        son, onceki = d.iloc[-1], d.iloc[-2]
+        # son mum gerçekten taze mi (en fazla 20 dk önce kapanmış olmalı)
+        kapanis = son["t"] + pd.Timedelta(minutes=15)
+        if (simdi - kapanis).total_seconds() > 20 * 60:
+            continue
+        for b in a["bolgeler"]:
+            if b.puan < ayarlar.IZLEME_MIN_PUAN:
+                continue
+            simdi_temas = son["low"] <= b.ust and son["high"] >= b.alt
+            onceki_temas = onceki["low"] <= b.ust and onceki["high"] >= b.alt
+            if not simdi_temas or onceki_temas:
+                continue
+            orta = (b.alt + b.ust) / 2
+            if any(k["sembol"] == sembol and abs(k["orta"] - orta) / orta < 0.01 for k in kayit):
+                continue
+            tur = "destek" if onceki["close"] > b.ust else "direnç" if onceki["close"] < b.alt else None
+            if tur is None:
+                continue
+            df1 = a["ltf"].get("1h", d)
+            dosya = grafik_ciz(df1, None, a["bolgeler"], f"{sembol} • 1 saat • {tur} bölgesi",
+                               gecici / f"izleme_{sembol}_{int(orta)}.png", mum_sayisi=120, vurgu=b)
+            tg.foto(dosya, izleme_metni(sembol, b, tur, float(son["close"]), a["trend"]))
+            kayit.append(dict(sembol=sembol, orta=float(orta), zaman=simdi.isoformat()))
+            gonderilen += 1
+    return gonderilen
+
+
+def gunluk_ozet_gerekirse(tg, analizler, durum, gecici):
+    bugun = datetime.now(TR_SAAT)
+    if ayarlar.GUNLUK_OZET and bugun.hour >= 9 and durum.get("son_ozet") != bugun.strftime("%Y-%m-%d"):
+        ozet_gonder(tg, analizler, gecici, ek="☀️ <b>Günlük özet</b>\n")
+        durum["son_ozet"] = bugun.strftime("%Y-%m-%d")
+
+
 def gh_not(seviye, mesaj):
     """GitHub Actions ekranında görünen kısa not (error/warning/notice)."""
     tek = str(mesaj).replace("\n", " | ")[:900]
@@ -780,7 +861,16 @@ def calistir(mod: str):
         gh_not("error", "Hicbir borsadan veri alinamadi.")
         sys.exit(1)
 
-    if mod == "test":
+    if mod == "test" and ayarlar.CALISMA_MODU == "izleme":
+        tg.mesaj("✅ <b>Bot İZLEME moduna geçti.</b>\n\n"
+                 "Artık giriş/stop/hedef içeren işlem sinyali gönderilmeyecek "
+                 "(backtest'te otomatik sinyaller kârsız çıktı).\n\n"
+                 "Bunun yerine fiyat günlük/4 saatlik <b>güçlü bir bölgeye</b> geldiğinde "
+                 "haber vereceğim. O zaman grafiği açıp Efloud'un onay yapılarını sen arayacaksın. "
+                 "Mesajda neye bakman gerektiği yazacak.\n\nGüncel bölge haritası:")
+        ozet_gonder(tg, analizler, gecici)
+
+    elif mod == "test":
         tg.mesaj("✅ <b>Kripto Onay Alarmı kuruldu ve çalışıyor.</b>\n"
                  "15 dakikada bir BTC ve ETH taranacak. Önce güncel bölge haritası, "
                  "ardından sistemin son günlerde yakaladığı birkaç örnek sinyal geliyor.")
@@ -803,7 +893,12 @@ def calistir(mod: str):
             ozet_gonder(tg, analizler, gecici, ek="☀️ <b>Günlük özet</b>\n")
             durum["son_ozet"] = datetime.now(TR_SAAT).strftime("%Y-%m-%d")
 
-    else:  # tara
+    elif ayarlar.CALISMA_MODU == "izleme":  # tara (izleme modu)
+        n = izleme_tara(tg, analizler, durum, gecici)
+        print(f"İzleme taraması bitti. Uyarı: {n}")
+        gunluk_ozet_gerekirse(tg, analizler, durum, gecici)
+
+    else:  # tara (sinyal modu)
         yeni = 0
         for sembol, a in analizler.items():
             for tf, ss in a["sinyaller"].items():

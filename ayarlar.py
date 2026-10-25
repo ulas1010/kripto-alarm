@@ -3,6 +3,16 @@ AYARLAR - Botun davranışını buradan değiştirebilirsin.
 Bir şeyi değiştirmek istersen sadece bu dosyayı düzenlemen yeterli.
 """
 
+# ÇALIŞMA MODU
+#   "izleme" : Fiyat güçlü bir bölgeye gelince "grafiğe bak" uyarısı (işlem sinyali YOK)
+#   "sinyal" : Otomatik giriş/stop/hedef sinyalleri (backtest'te kârsız çıktı, önerilmez)
+CALISMA_MODU = "izleme"
+
+# İzleme modu: bölgenin en az bu güçte olması gerekir (Günlük dönüş noktası 2, 4 saatlik 1 puan)
+IZLEME_MIN_PUAN = 3
+# İzleme modu: aynı bölge için en erken kaç saat sonra tekrar uyarı gönderilsin
+IZLEME_TEKRAR_SAAT = 24
+
 # Takip edilecek coinler
 SEMBOLLER = ["BTCUSDT", "ETHUSDT"]
 
