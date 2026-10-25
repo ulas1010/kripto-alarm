@@ -951,7 +951,35 @@ def trend_iliskisi(trend, yon):
     return "yatay piyasa"
 
 
-def onay_adayi_metni(s: Sinyal, no: int, aciklama: str) -> str:
+def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list) -> list[str]:
+    """Efloud'un mantığına göre basit kontrol listesi: ✅ uygun, ❌ uygun değil, ➖ nötr."""
+    ilis = trend_iliskisi(s.trend, s.yon)
+    stop_y = abs(s.giris - s.stop) / s.giris * 100
+    arada = [b for b in bolgeler
+             if not (abs(b.alt - s.bolge_alt) < 1e-9 and abs(b.ust - s.bolge_ust) < 1e-9)
+             and min(s.giris, s.tp1) < (b.alt + b.ust) / 2 < max(s.giris, s.tp1)]
+    maddeler = [
+        ("✅", "Efloud'un bölgesinde oluştu"),
+        ("✅", f"Yön bölgenin rolüne uygun ({rol} → {s.yon})"),
+        ("✅" if ilis == "trend yönünde" else "➖" if ilis == "yatay piyasa" else "❌",
+         f"Trend: {ilis}"),
+        ("✅" if stop_y >= 1.0 else "❌", f"Stop en az %1 (%{stop_y:.2f})"),
+        ("✅" if s.rr1 >= 1.5 else "❌", f"Hedef 1 en az 1,5R (R {s.rr1})"),
+        ("✅" if not arada else "❌",
+         "Giriş ile Hedef 1 arasında başka bölge yok" if not arada
+         else f"Hedefe giden yolda başka bölge var ({fmt(arada[0].alt)}–{fmt(arada[0].ust)})"),
+    ]
+    hata = sum(m[0] == "❌" for m in maddeler)
+    if hata == 0:
+        sonuc = "🟩 <b>Sonuç: kurallara uygun aday</b>"
+    elif hata == 1:
+        sonuc = "🟨 <b>Sonuç: bir zayıf noktası var, dikkatli ol</b>"
+    else:
+        sonuc = "🟥 <b>Sonuç: kurallara göre pas geçmek daha uygun</b>"
+    return ["<b>Kontrol listesi:</b>", *[f"{a} {b}" for a, b in maddeler], sonuc]
+
+
+def onay_adayi_metni(s: Sinyal, no: int, aciklama: str, kontrol: list[str] | None = None) -> str:
     coin = s.sembol.replace("USDT", "/USDT")
     emoji = "🟢" if s.yon == "long" else "🔴"
     stop_y = abs(s.giris - s.stop) / s.giris * 100
@@ -979,7 +1007,8 @@ def onay_adayi_metni(s: Sinyal, no: int, aciklama: str) -> str:
         f"• Stop: {fmt(s.stop)} (%{stop_y:.2f}, yapının bozulduğu yer)",
         f"• Hedef 1: {fmt(s.tp1)} (R {s.rr1})  •  Hedef 2: {fmt(s.tp2)} (R {s.rr2})",
         "",
-        *uyarilar,
+        *(kontrol or uyarilar),
+        "",
         f"⏱️ Yapı {zaman_tr.strftime('%H:%M')} kapanışında oluştu ({gecikme_dk(s)} dk önce)",
         f"📒 Kâğıt takip #{no}: sonucu bot kendisi kaydedecek.",
         "",
@@ -1005,6 +1034,7 @@ def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
                     continue
                 # 1) Bölgenin rolüne uygun yön: destekte long, dirençte short onayı aranır.
                 #    (Kırılım + retest kendi yönünü taşır: kırılan destek short, kırılan direnç long.)
+                rol = "kırılan destek" if s.yon == "short" else "kırılan direnç"
                 if s.yapi != "retest":
                     ref = float(df["close"].iloc[max(0, s.i - 32)])  # yapıdan önce fiyat nereden geldi
                     rol = "destek" if ref >= (b.alt + b.ust) / 2 else "direnç"
@@ -1021,7 +1051,7 @@ def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
                 d = grafik_ciz(df, s, a["bolgeler"],
                                f"{sembol} • {TF_ADI[tf]} • {YAPI_ADI[s.yapi]} ({s.yon.upper()}) • aday #{no}",
                                gecici / f"aday_{sembol}_{tf}_{s.i}.png")
-                tg.foto(d, onay_adayi_metni(s, no, b.aciklama))
+                tg.foto(d, onay_adayi_metni(s, no, b.aciklama, kontrol_listesi(s, rol, a["bolgeler"])))
                 kagit["acik"].append(dict(
                     no=no, sembol=sembol, tf=tf, yapi=s.yapi, yon=s.yon, trend=s.trend,
                     iliski=trend_iliskisi(s.trend, s.yon), giris=s.giris, stop=s.stop, tp1=s.tp1,
