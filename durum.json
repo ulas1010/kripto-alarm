@@ -33,23 +33,7 @@
  ],
  "kagit": {
   "sayac": 1,
-  "acik": [
-   {
-    "no": 1,
-    "sembol": "BTCUSDT",
-    "tf": "15m",
-    "yapi": "sfp",
-    "yon": "short",
-    "trend": "yatay / kararsız",
-    "iliski": "yatay piyasa",
-    "giris": 80579.47,
-    "stop": 80812.73907142857,
-    "tp1": 80304.71,
-    "rr1": 1.18,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-10-25T15:30:00+00:00"
-   }
-  ],
+  "acik": [],
   "kapali": []
  }
 }

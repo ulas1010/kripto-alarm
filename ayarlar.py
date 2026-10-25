@@ -47,3 +47,6 @@ GUNLUK_OZET = True
 # Yapı oluştuktan en fazla kaç dakika sonra alarm gönderilsin.
 # Bundan daha geç fark edilen yapılar (fiyat çoktan kaçmış olabilir) GÖNDERİLMEZ.
 MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30}
+
+# Onay adayı: stop mesafesi bundan darsa aday gönderilmez (backtest: %1'den dar stoplar zarar ettirdi)
+ADAY_MIN_STOP_YUZDE = 1.0

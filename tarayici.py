@@ -1003,6 +1003,19 @@ def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
                 isaretle(s.kimlik)
                 if gecikme_dk(s) > ayarlar.MAKS_GECIKME_DAKIKA.get(tf, 30) or not hala_gecerli(s, df):
                     continue
+                # 1) Bölgenin rolüne uygun yön: destekte long, dirençte short onayı aranır.
+                #    (Kırılım + retest kendi yönünü taşır: kırılan destek short, kırılan direnç long.)
+                if s.yapi != "retest":
+                    ref = float(df["close"].iloc[max(0, s.i - 32)])  # yapıdan önce fiyat nereden geldi
+                    rol = "destek" if ref >= (b.alt + b.ust) / 2 else "direnç"
+                    if (rol == "destek" and s.yon != "long") or (rol == "direnç" and s.yon != "short"):
+                        gh_not("notice", f"Aday elendi (bölge rolü {rol}, yön {s.yon}): {s.kimlik}")
+                        continue
+                # 2) Stop mesafesi: backtest'te %1'den dar stoplar tutarlı şekilde zarar ettirdi
+                stop_y = abs(s.giris - s.stop) / s.giris * 100
+                if stop_y < ayarlar.ADAY_MIN_STOP_YUZDE:
+                    gh_not("notice", f"Aday elendi (stop %{stop_y:.2f} < %{ayarlar.ADAY_MIN_STOP_YUZDE}): {s.kimlik}")
+                    continue
                 kagit["sayac"] += 1
                 no = kagit["sayac"]
                 d = grafik_ciz(df, s, a["bolgeler"],
