@@ -219,6 +219,7 @@ class Bolge:
     puan: int
     kaynak: set = field(default_factory=set)
     ozel_etiket: str = ""
+    rol: str = ""  # Efloud bölgelerinde: "destek", "direnç" ya da "ikisi"
     aciklama: str = ""
 
     def icinde(self, fiyat, tol=0.0):
@@ -248,7 +249,8 @@ def manuel_bolgeler(sembol: str) -> list[Bolge]:
     out = []
     for z in veri.get(sembol, []):
         out.append(Bolge(float(z["alt"]), float(z["ust"]), 9, {"manuel"},
-                         ozel_etiket=f"⭐ {z.get('kaynak', 'Manuel')} bölgesi", aciklama=z.get("not", "")))
+                         ozel_etiket=f"⭐ {z.get('kaynak', 'Manuel')} bölgesi", aciklama=z.get("not", ""),
+                         rol=z.get("rol", "")))
     return out
 
 
@@ -889,14 +891,20 @@ def izleme_tara(tg, analizler, durum, gecici) -> int:
             olay, tur = None, None
 
             # 1) Kırılım (sadece Efloud bölgeleri)
-            if manuel and onceki["close"] >= b.alt and c < b.alt and (gecmis["close"] > b.ust).any():
+            # Kırılım: bölgenin ötesinde en az %0,15 kapanış (birkaç dolarlık taşmalar sayılmaz)
+            pay = 0.0015 * orta
+            if manuel and b.rol in ("destek", "ikisi", "") and onceki["close"] >= b.alt - pay \
+                    and c < b.alt - pay and (gecmis["close"] > b.ust).any():
                 olay = "kayip"
-            elif manuel and onceki["close"] <= b.ust and c > b.ust and (gecmis["close"] < b.alt).any():
+            elif manuel and b.rol in ("direnç", "ikisi", "") and onceki["close"] <= b.ust + pay \
+                    and c > b.ust + pay and (gecmis["close"] < b.alt).any():
                 olay = "kazanim"
             # 2) Bölgeye dışarıdan giriş
             elif (son["low"] <= b.ust and son["high"] >= b.alt) and not \
                     (onceki["low"] <= b.ust and onceki["high"] >= b.alt):
-                if onceki["close"] > b.ust:
+                if b.rol in ("destek", "direnç"):
+                    olay, tur = "giris", b.rol
+                elif onceki["close"] > b.ust:
                     olay, tur = "giris", "destek"
                 elif onceki["close"] < b.alt:
                     olay, tur = "giris", "direnç"
@@ -904,7 +912,7 @@ def izleme_tara(tg, analizler, durum, gecici) -> int:
             elif manuel and b.alt <= c <= b.ust:
                 olay = "icinde"
                 ref = float(d["close"].iloc[-33])
-                tur = "destek" if ref >= orta else "direnç"
+                tur = b.rol if b.rol in ("destek", "direnç") else ("destek" if ref >= orta else "direnç")
 
             if olay is None:
                 continue
@@ -1037,7 +1045,8 @@ def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
                 rol = "kırılan destek" if s.yon == "short" else "kırılan direnç"
                 if s.yapi != "retest":
                     ref = float(df["close"].iloc[max(0, s.i - 32)])  # yapıdan önce fiyat nereden geldi
-                    rol = "destek" if ref >= (b.alt + b.ust) / 2 else "direnç"
+                    rol = b.rol if b.rol in ("destek", "direnç") else \
+                        ("destek" if ref >= (b.alt + b.ust) / 2 else "direnç")
                     if (rol == "destek" and s.yon != "long") or (rol == "direnç" and s.yon != "short"):
                         gh_not("notice", f"Aday elendi (bölge rolü {rol}, yön {s.yon}): {s.kimlik}")
                         continue
