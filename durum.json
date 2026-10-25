@@ -22,7 +22,9 @@
   "BTCUSDT|15m|sfp|short|2026-10-25T15:15",
   "BTCUSDT|15m|breaker|long|2026-10-25T16:45",
   "ETHUSDT|15m|retest|short|2026-10-25T17:00",
-  "ETHUSDT|1h|retest|short|2026-10-25T18:00"
+  "ETHUSDT|1h|retest|short|2026-10-25T18:00",
+  "BTCUSDT|15m|breaker|short|2026-10-25T23:15",
+  "ETHUSDT|15m|mitigation|short|2026-10-25T23:15"
  ],
  "son_kalp_atisi": "2026-10-22",
  "son_ozet": "2026-10-25",
@@ -44,11 +46,33 @@
    "orta": 2385.0,
    "olay": "giris",
    "zaman": "2026-10-25T17:01:38.340468+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 80500.0,
+   "olay": "kayip",
+   "zaman": "2026-10-25T23:31:38.662784+00:00"
   }
  ],
  "kagit": {
-  "sayac": 1,
-  "acik": [],
+  "sayac": 2,
+  "acik": [
+   {
+    "no": 2,
+    "sembol": "ETHUSDT",
+    "tf": "15m",
+    "yapi": "mitigation",
+    "yon": "short",
+    "trend": "düşüş",
+    "iliski": "trend yönünde",
+    "giris": 2327.6,
+    "stop": 2366.2036428571428,
+    "tp1": 2282.46,
+    "rr1": 1.17,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-10-25T23:30:00+00:00"
+   }
+  ],
   "kapali": []
  }
 }
