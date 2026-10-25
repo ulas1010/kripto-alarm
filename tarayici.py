@@ -588,7 +588,7 @@ def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vu
         vurgulu = (s is not None and abs(b.alt - s.bolge_alt) < 1e-9) or (vurgu is not None and b is vurgu)
         ax.axhspan(b.alt, b.ust, color="#f0b90b" if vurgulu else "#5d6b8a",
                    alpha=0.28 if vurgulu else 0.15, zorder=0)
-        ax.text(1, min(b.ust, ymax + pad * 0.6), f" {b.etiket} (güç {b.puan})", color=YAZI,
+        ax.text(1, min(b.ust, ymax + pad * 0.6), f" {b.etiket.replace('⭐ ', '')}" + ("" if "manuel" in b.kaynak else f" (güç {b.puan})"), color=YAZI,
                 fontsize=7, va="bottom" if b.ust <= ymax + pad * 0.6 else "top", alpha=0.8)
 
     if s is not None:
@@ -936,6 +936,164 @@ def gunluk_ozet_gerekirse(tg, analizler, durum, gecici):
         durum["son_ozet"] = bugun.strftime("%Y-%m-%d")
 
 
+# ----------------------------------------------------------------------------
+# ONAY ADAYI + KÂĞIT ÜZERİNDE TAKİP (sadece Efloud bölgelerinde)
+# ----------------------------------------------------------------------------
+KAGIT_KOMISYON = 0.001
+KAGIT_MAKS_SAAT = {"15m": 48, "30m": 72, "1h": 120}
+
+
+def trend_iliskisi(trend, yon):
+    if trend == "yükseliş":
+        return "trend yönünde" if yon == "long" else "trend tersi"
+    if trend == "düşüş":
+        return "trend yönünde" if yon == "short" else "trend tersi"
+    return "yatay piyasa"
+
+
+def onay_adayi_metni(s: Sinyal, no: int, aciklama: str) -> str:
+    coin = s.sembol.replace("USDT", "/USDT")
+    emoji = "🟢" if s.yon == "long" else "🔴"
+    stop_y = abs(s.giris - s.stop) / s.giris * 100
+    ilis = trend_iliskisi(s.trend, s.yon)
+    uyarilar = []
+    if ilis == "trend tersi":
+        uyarilar.append("⚠️ Trend tersi: backtest'te en zayıf grup. Çok net değilse pas geç.")
+    elif ilis == "trend yönünde":
+        uyarilar.append("✅ Trend yönünde: backtest'te en iyi davranan grup.")
+    if stop_y < 1.0:
+        uyarilar.append(f"⚠️ Stop dar (%{stop_y:.2f}): backtest'te %1'den dar stoplar komisyon ve gürültüyle eriyordu.")
+    zaman_tr = pd.Timestamp(s.zaman, tz="UTC").tz_convert(TR_SAAT) + pd.Timedelta(minutes=TF_DAKIKA[s.tf])
+    return "\n".join([
+        f"🎯 <b>ONAY ADAYI • {coin} • {TF_ADI[s.tf]} • {emoji} {s.yon.upper()}</b>",
+        f"Yapı: <b>{YAPI_ADI[s.yapi]}</b>",
+        f"<i>{YAPI_ACIKLAMA[(s.yapi, s.yon)]}</i>",
+        f"Bölge: {s.bolge_etiket} ({fmt(s.bolge_alt)} – {fmt(s.bolge_ust)})",
+        *([f"📝 {aciklama}"] if aciklama else []),
+        f"Günlük trend (tepe/dip): {s.trend} → {ilis}",
+        "",
+        "<b>Efloud'un kuralına göre seviyeler:</b>",
+        f"• Giriş tetiği: {fmt(s.giris)} (onay mumu kapanışı)"
+        + (f"\n• Geri çekilme girişi: {fmt(s.geri_cekilme)} (kırılan seviyenin retesti, Efloud'un tercihi)"
+           if s.geri_cekilme else ""),
+        f"• Stop: {fmt(s.stop)} (%{stop_y:.2f}, yapının bozulduğu yer)",
+        f"• Hedef 1: {fmt(s.tp1)} (R {s.rr1})  •  Hedef 2: {fmt(s.tp2)} (R {s.rr2})",
+        "",
+        *uyarilar,
+        f"⏱️ Yapı {zaman_tr.strftime('%H:%M')} kapanışında oluştu ({gecikme_dk(s)} dk önce)",
+        f"📒 Kâğıt takip #{no}: sonucu bot kendisi kaydedecek.",
+        "",
+        "Otomatik tespit, henüz kanıtlanmadı. Tavsiye değildir. Grafikte doğrula, küçük miktar, stopsuz girme.",
+    ])
+
+
+def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
+    kagit = durum.setdefault("kagit", {"sayac": 0, "acik": [], "kapali": []})
+    n = 0
+    for sembol, a in analizler.items():
+        manuel = {(round(b.alt, 6), round(b.ust, 6)): b for b in a["bolgeler"] if "manuel" in b.kaynak}
+        if not manuel:
+            continue
+        for tf, ss in a["sinyaller"].items():
+            df = a["ltf"][tf]
+            for s in ss:
+                b = manuel.get((round(s.bolge_alt, 6), round(s.bolge_ust, 6)))
+                if b is None or s.i < len(df) - LTF_AYAR[tf]["pencere"] or s.kimlik in gonderilen:
+                    continue
+                isaretle(s.kimlik)
+                if gecikme_dk(s) > ayarlar.MAKS_GECIKME_DAKIKA.get(tf, 30) or not hala_gecerli(s, df):
+                    continue
+                kagit["sayac"] += 1
+                no = kagit["sayac"]
+                d = grafik_ciz(df, s, a["bolgeler"],
+                               f"{sembol} • {TF_ADI[tf]} • {YAPI_ADI[s.yapi]} ({s.yon.upper()}) • aday #{no}",
+                               gecici / f"aday_{sembol}_{tf}_{s.i}.png")
+                tg.foto(d, onay_adayi_metni(s, no, b.aciklama))
+                kagit["acik"].append(dict(
+                    no=no, sembol=sembol, tf=tf, yapi=s.yapi, yon=s.yon, trend=s.trend,
+                    iliski=trend_iliskisi(s.trend, s.yon), giris=s.giris, stop=s.stop, tp1=s.tp1,
+                    rr1=s.rr1, bolge=b.etiket,
+                    zaman=(pd.Timestamp(s.zaman, tz="UTC") + pd.Timedelta(minutes=TF_DAKIKA[tf])).isoformat()))
+                n += 1
+    return n
+
+
+def kagit_guncelle(tg, analizler, durum) -> int:
+    """Açık kâğıt pozisyonları 15dk mumlarla kontrol eder (aynı mumda stop+hedef = stop sayılır)."""
+    kagit = durum.setdefault("kagit", {"sayac": 0, "acik": [], "kapali": []})
+    simdi = pd.Timestamp.now(tz="UTC")
+    kapanan = 0
+    kalan = []
+    for p in kagit["acik"]:
+        a = analizler.get(p["sembol"])
+        if a is None or "15m" not in a["ltf"]:
+            kalan.append(p)
+            continue
+        d = a["ltf"]["15m"]
+        bas = pd.Timestamp(p["zaman"])
+        if bas < d["t"].iloc[0]:  # veri penceresinin dışına taştıysa güvenli kapat
+            sonra = d.iloc[0:0]
+        else:
+            sonra = d[d["t"] >= bas]
+        uzun = p["yon"] == "long"
+        risk = abs(p["giris"] - p["stop"])
+        sonuc = None
+        for _, m in sonra.iterrows():
+            if (m["low"] <= p["stop"]) if uzun else (m["high"] >= p["stop"]):
+                sonuc = ("stop", -1.0)
+                break
+            if (m["high"] >= p["tp1"]) if uzun else (m["low"] <= p["tp1"]):
+                sonuc = ("hedef1", abs(p["tp1"] - p["giris"]) / risk)
+                break
+        if sonuc is None and (simdi - bas).total_seconds() / 3600 > KAGIT_MAKS_SAAT.get(p["tf"], 72):
+            son = float(d["close"].iloc[-1])
+            sonuc = ("süre doldu", ((son - p["giris"]) if uzun else (p["giris"] - son)) / risk)
+        if sonuc is None:
+            kalan.append(p)
+            continue
+        r = round(sonuc[1] - KAGIT_KOMISYON * p["giris"] / risk, 2)
+        p.update(sonuc=sonuc[0], R=r, kapanis=simdi.isoformat())
+        kagit["kapali"].append(p)
+        kapanan += 1
+        ikon = {"hedef1": "✅", "stop": "❌", "süre doldu": "⌛"}[sonuc[0]]
+        tg.mesaj(f"📒 <b>Kâğıt takip #{p['no']} kapandı</b> {ikon}\n"
+                 f"{p['sembol'].replace('USDT', '/USDT')} • {TF_ADI[p['tf']]} • {YAPI_ADI[p['yapi']]} "
+                 f"{p['yon'].upper()} ({p['iliski']})\n"
+                 f"Sonuç: <b>{sonuc[0]}</b> • {r:+.2f}R (komisyon dahil)")
+    kagit["acik"] = kalan
+    kagit["kapali"] = kagit["kapali"][-300:]
+    return kapanan
+
+
+def kagit_istatistik(liste):
+    if not liste:
+        return "henüz kapanan aday yok"
+    r = [p["R"] for p in liste]
+    isabet = sum(p["sonuc"] == "hedef1" for p in liste) / len(liste) * 100
+    return f"{len(liste)} aday • isabet %{isabet:.0f} • toplam {sum(r):+.1f}R • ort {sum(r) / len(r):+.2f}R"
+
+
+def haftalik_ozet_gerekirse(tg, durum):
+    simdi = datetime.now(TR_SAAT)
+    hafta = simdi.strftime("%G-W%V")
+    if simdi.weekday() != 0 or simdi.hour < 9 or durum.get("son_haftalik") == hafta:
+        return
+    kagit = durum.setdefault("kagit", {"sayac": 0, "acik": [], "kapali": []})
+    sinir = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)
+    bu_hafta = [p for p in kagit["kapali"] if pd.Timestamp(p["kapanis"]) >= sinir]
+    satir = ["📒 <b>Haftalık kâğıt takip özeti</b>",
+             f"Son 7 gün: {kagit_istatistik(bu_hafta)}",
+             f"Başından beri: {kagit_istatistik(kagit['kapali'])}"]
+    for il in ("trend yönünde", "yatay piyasa", "trend tersi"):
+        grup = [p for p in kagit["kapali"] if p["iliski"] == il]
+        if grup:
+            satir.append(f"  • {il}: {kagit_istatistik(grup)}")
+    satir += [f"Açık aday: {len(kagit['acik'])}", "",
+              "En az 30-40 aday birikmeden sonuçlara güvenme; az sayıda işlemde şans çok etkili."]
+    tg.mesaj("\n".join(satir))
+    durum["son_haftalik"] = hafta
+
+
 def gh_not(seviye, mesaj):
     """GitHub Actions ekranında görünen kısa not (error/warning/notice)."""
     tek = str(mesaj).replace("\n", " | ")[:900]
@@ -1019,6 +1177,11 @@ def calistir(mod: str):
 
     elif ayarlar.CALISMA_MODU == "izleme":  # tara (izleme modu)
         n = izleme_tara(tg, analizler, durum, gecici)
+        n_aday = onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle)
+        n_kapali = kagit_guncelle(tg, analizler, durum)
+        haftalik_ozet_gerekirse(tg, durum)
+        gh_not("notice", f"izleme uyarısı {n}, onay adayı {n_aday}, kapanan kâğıt {n_kapali}, "
+               f"açık kâğıt {len(durum.get('kagit', {}).get('acik', []))}")
         for sembol, an in analizler.items():  # Actions ekranında kısa durum notu
             f = an["fiyat"]
             alt = max([b for b in an["bolgeler"] if b.ust < f], key=lambda b: b.ust, default=None)
