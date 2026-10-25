@@ -825,39 +825,106 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
     ])
 
 
+def kirilim_metni(sembol, b: Bolge, olay: str, fiyat: float, trend: str) -> str:
+    coin = sembol.replace("USDT", "/USDT")
+    if olay == "kayip":
+        bas = f"🔻 <b>{coin} • bölge AŞAĞI KIRILDI</b> (15dk kapanış altında)"
+        bak = ["• <b>Devam senaryosu (short fikri):</b> fiyat bölgeyi aşağıdan geri test edip yine altında "
+               "kapanırsa → destek dirence döndü (kırılım + retest)",
+               "• <b>Tuzak senaryosu (long fikri):</b> fiyat kısa sürede bölgenin üstüne geri kapanış yaparsa "
+               "→ deviation / SFP olabilir, onay ara",
+               "• Arada kalırsa işlem yok, bir sonraki bölgeyi bekle."]
+    else:
+        bas = f"🔺 <b>{coin} • bölge YUKARI KIRILDI</b> (15dk kapanış üstünde)"
+        bak = ["• <b>Devam senaryosu (long fikri):</b> fiyat bölgeyi yukarıdan geri test edip yine üstünde "
+               "kapanırsa → direnç desteğe döndü (kırılım + retest)",
+               "• <b>Tuzak senaryosu (short fikri):</b> fiyat kısa sürede bölgenin altına geri kapanış yaparsa "
+               "→ deviation / SFP olabilir, onay ara",
+               "• Arada kalırsa işlem yok, bir sonraki bölgeyi bekle."]
+    return "\n".join([
+        bas,
+        f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket})",
+        *([f"📝 {b.aciklama}"] if b.aciklama else []),
+        f"Fiyat: {fmt(fiyat)}",
+        f"Günlük trend (tepe/dip yapısı): {trend}",
+        "",
+        "<b>Şimdi neye bak:</b>",
+        *bak,
+        "",
+        "ℹ️ Bu bir işlem sinyali değil, sadece izleme uyarısıdır.",
+    ])
+
+
 def izleme_tara(tg, analizler, durum, gecici) -> int:
-    kayit = durum.setdefault("izleme", [])  # [{"sembol","orta","zaman"}]
+    """Olaylar:
+      giris  : fiyat bir bölgeye dışarıdan girdi (otomatik + Efloud bölgeleri)
+      icinde : fiyat bir Efloud bölgesinin içinde ve son 24 saatte haber verilmedi
+      kayip / kazanim : fiyat bir Efloud bölgesini kapanışla kırdı (destek kaybı / direnç kazanımı)"""
+    kayit = durum.setdefault("izleme", [])  # [{"sembol","orta","olay","zaman"}]
     simdi = pd.Timestamp.now(tz="UTC")
     bekleme = pd.Timedelta(hours=ayarlar.IZLEME_TEKRAR_SAAT)
     kayit[:] = [k for k in kayit if simdi - pd.Timestamp(k["zaman"]) < bekleme]
+
+    def var_mi(sembol, orta, olaylar):
+        return any(k["sembol"] == sembol and abs(k["orta"] - orta) / orta < 0.01
+                   and k.get("olay", "giris") in olaylar for k in kayit)
+
     gonderilen = 0
     for sembol, a in analizler.items():
         d = a["ltf"]["15m"] if "15m" in a["ltf"] else next(iter(a["ltf"].values()))
-        if len(d) < 3:
+        if len(d) < 40:
             continue
         son, onceki = d.iloc[-1], d.iloc[-2]
-        # son mum gerçekten taze mi (en fazla 20 dk önce kapanmış olmalı)
         kapanis = son["t"] + pd.Timedelta(minutes=15)
-        if (simdi - kapanis).total_seconds() > 20 * 60:
+        if (simdi - kapanis).total_seconds() > 20 * 60:  # son mum taze değilse geç
             continue
+        gecmis = d.iloc[-34:-1]  # son ~8 saat
+        df1 = a["ltf"].get("1h", d)
+        c = float(son["close"])
         for b in a["bolgeler"]:
             if b.puan < ayarlar.IZLEME_MIN_PUAN:
                 continue
-            simdi_temas = son["low"] <= b.ust and son["high"] >= b.alt
-            onceki_temas = onceki["low"] <= b.ust and onceki["high"] >= b.alt
-            if not simdi_temas or onceki_temas:
-                continue
+            manuel = "manuel" in b.kaynak
             orta = (b.alt + b.ust) / 2
-            if any(k["sembol"] == sembol and abs(k["orta"] - orta) / orta < 0.01 for k in kayit):
+            olay, tur = None, None
+
+            # 1) Kırılım (sadece Efloud bölgeleri)
+            if manuel and onceki["close"] >= b.alt and c < b.alt and (gecmis["close"] > b.ust).any():
+                olay = "kayip"
+            elif manuel and onceki["close"] <= b.ust and c > b.ust and (gecmis["close"] < b.alt).any():
+                olay = "kazanim"
+            # 2) Bölgeye dışarıdan giriş
+            elif (son["low"] <= b.ust and son["high"] >= b.alt) and not \
+                    (onceki["low"] <= b.ust and onceki["high"] >= b.alt):
+                if onceki["close"] > b.ust:
+                    olay, tur = "giris", "destek"
+                elif onceki["close"] < b.alt:
+                    olay, tur = "giris", "direnç"
+            # 3) Zaten içinde (sadece Efloud bölgeleri)
+            elif manuel and b.alt <= c <= b.ust:
+                olay = "icinde"
+                ref = float(d["close"].iloc[-33])
+                tur = "destek" if ref >= orta else "direnç"
+
+            if olay is None:
                 continue
-            tur = "destek" if onceki["close"] > b.ust else "direnç" if onceki["close"] < b.alt else None
-            if tur is None:
+            if olay in ("giris", "icinde") and var_mi(sembol, orta, ("giris", "icinde")):
                 continue
-            df1 = a["ltf"].get("1h", d)
-            dosya = grafik_ciz(df1, None, a["bolgeler"], f"{sembol} • 1 saat • {tur} bölgesi",
-                               gecici / f"izleme_{sembol}_{int(orta)}.png", mum_sayisi=120, vurgu=b)
-            tg.foto(dosya, izleme_metni(sembol, b, tur, float(son["close"]), a["trend"]))
-            kayit.append(dict(sembol=sembol, orta=float(orta), zaman=simdi.isoformat()))
+            if olay in ("kayip", "kazanim") and var_mi(sembol, orta, (olay,)):
+                continue
+
+            if olay in ("kayip", "kazanim"):
+                metin = kirilim_metni(sembol, b, olay, c, a["trend"])
+                baslik = f"{sembol} • 1 saat • bölge {'kaybı' if olay == 'kayip' else 'kazanımı'}"
+            else:
+                metin = izleme_metni(sembol, b, tur, c, a["trend"])
+                if olay == "icinde":
+                    metin = metin.replace("bölgesine geldi</b>", "bölgesinin İÇİNDE</b>", 1)
+                baslik = f"{sembol} • 1 saat • {tur} bölgesi"
+            dosya = grafik_ciz(df1, None, a["bolgeler"], baslik,
+                               gecici / f"izleme_{sembol}_{olay}_{int(orta)}.png", mum_sayisi=120, vurgu=b)
+            tg.foto(dosya, metin)
+            kayit.append(dict(sembol=sembol, orta=float(orta), olay=olay, zaman=simdi.isoformat()))
             gonderilen += 1
     return gonderilen
 
