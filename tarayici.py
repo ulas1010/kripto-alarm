@@ -721,7 +721,8 @@ def sembol_analiz(sembol, veri=None):
     ltf = {tf: al(tf, 700) for tf in ayarlar.ONAY_ZAMAN_DILIMLERI}
     fiyat = float(ltf[ayarlar.ONAY_ZAMAN_DILIMLERI[0]]["close"].iloc[-1])
     bolgeler = bolgeleri_bul(htf, fiyat)
-    trend = gunluk_trend(df_d)
+    # Efloud'a yakın: günlük grafikte tepe/dip yapısından trend (EMA yerine)
+    trend = yapisal_trend(df_d.tail(150), 3)
     sinyaller = {}
     for tf, df in ltf.items():
         ss = yapilari_tara(df, tf, sembol, bolgeler)
@@ -738,7 +739,7 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
         ust = sorted([b for b in a["bolgeler"] if b.alt > f], key=lambda b: b.alt)[:2]
         icinde = [b for b in a["bolgeler"] if b.icinde(f)]
         satir = [f"📊 <b>{sembol.replace('USDT', '/USDT')}</b>  {fmt(f)}",
-                 f"Günlük trend: {a['trend']}"]
+                 f"Günlük trend (tepe/dip yapısı): {a['trend']}"]
         if icinde:
             satir.append(f"📍 Fiyat şu an bir bölgenin içinde: {fmt(icinde[0].alt)} – {fmt(icinde[0].ust)}"
                          " → onay yapıları burada aranıyor")
@@ -758,13 +759,19 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
 def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
     coin = sembol.replace("USDT", "/USDT")
     destek = tur == "destek"
+    yon = "long" if destek else "short"
+    yildiz = ""
     if trend == "yatay / kararsız":
-        trend_not = "yatay piyasa → onay yapıları burada en anlamlı"
+        trend_not = "yatay piyasa → onay şart, hedefi range içinde tut"
     else:
         ters = (trend == "düşüş" and destek) or (trend == "yükseliş" and not destek)
-        trend_not = (f"{trend} → buradan {'long' if destek else 'short'} trend TERSİ olur, "
-                     "onay şart ve hedefe sadık kal" if ters else
-                     f"{trend} → buradan {'long' if destek else 'short'} trend yönünde olur")
+        if ters:
+            trend_not = (f"{trend} → buradan {yon} trend TERSİ olur. Backtest'te en zayıf grup; "
+                         "çok net onay yoksa pas geç")
+        else:
+            yildiz = "⭐ "
+            trend_not = (f"{trend} → buradan {yon} trend YÖNÜNDE olur. Backtest'te en iyi davranan "
+                         "grup buydu (stopu en az %1 geniş tut)")
     if destek:
         bak = ["• <b>Breaker:</b> bölgede dip → tepe → daha düşük dip (likidite alımı), sonra o tepenin üstünde kapanış",
                "• <b>Mitigation:</b> eski dip bozulmadan daha yüksek dip, sonra tepenin üstünde kapanış",
@@ -776,10 +783,10 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
                "• <b>SFP:</b> fitil eski tepenin üstüne çıkıp mum altında kapanır + ardından kırmızı mum",
                "• <b>Ters senaryo:</b> bölge sert yeşil mumla yukarı kırılır, geri test edip üstünde kalırsa → direnç kazanımı (long fikri)"]
     return "\n".join([
-        f"📍 <b>{coin} • {tur.upper()} bölgesine geldi</b>",
+        f"{yildiz}📍 <b>{coin} • {tur.upper()} bölgesine geldi</b>",
         f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket}, güç {b.puan})",
         f"Fiyat: {fmt(fiyat)}",
-        f"Günlük trend: {trend_not}",
+        f"Günlük trend (tepe/dip yapısı): {trend_not}",
         "",
         "<b>15dk / 1 saatlikte şunlardan birini ara:</b>",
         *bak,
