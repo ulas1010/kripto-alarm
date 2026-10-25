@@ -952,6 +952,13 @@ def calistir(mod: str):
 
     elif ayarlar.CALISMA_MODU == "izleme":  # tara (izleme modu)
         n = izleme_tara(tg, analizler, durum, gecici)
+        for sembol, an in analizler.items():  # Actions ekranında kısa durum notu
+            f = an["fiyat"]
+            alt = max([b for b in an["bolgeler"] if b.ust < f], key=lambda b: b.ust, default=None)
+            ust = min([b for b in an["bolgeler"] if b.alt > f], key=lambda b: b.alt, default=None)
+            gh_not("notice", f"{sembol} {f:.2f} | trend {an['trend']} | alttaki bölge "
+                   f"{(f'{alt.alt:.0f}-{alt.ust:.0f} ({yuzde(f, alt.ust)}, {alt.etiket})') if alt else '-'} | üstteki "
+                   f"{(f'{ust.alt:.0f}-{ust.ust:.0f} ({yuzde(f, ust.alt)}, {ust.etiket})') if ust else '-'}")
         print(f"İzleme taraması bitti. Uyarı: {n}")
         gunluk_ozet_gerekirse(tg, analizler, durum, gecici)
 
