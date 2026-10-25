@@ -1,5 +1,21 @@
 {
-  "_aciklama": "Efloud analizlerinden alınan bölgeler. Claude günceller.",
-  "BTCUSDT": [],
-  "ETHUSDT": []
+  "_aciklama": "Efloud analizlerinden alınan bölgeler. Kaynak: OKX TR Haftalık Araştırma Raporu #48 (22.10.2026). Claude günceller.",
+  "BTCUSDT": [
+    {"alt": 100000, "ust": 100600, "kaynak": "Efloud #48", "not": "Psikolojik direnç 100.300; 93.500 sonrası hedef."},
+    {"alt": 93200, "ust": 93800, "kaynak": "Efloud #48", "not": "25' YO 93.500: YO momentumla kazanılırsa sıradaki hedef/direnç."},
+    {"alt": 87300, "ust": 87900, "kaynak": "Efloud #48", "not": "YO (yıllık açılış) ~87.600. Momentumla kazanılırsa yol 93.500'e açılır."},
+    {"alt": 85100, "ust": 86350, "kaynak": "Efloud #48", "not": "Günlük imbalance 85.100 + LTF 85.300; 85.390–86.350 güncel direnç. Buradan ret aldı; kazanılmadıkça kısa vadede temkinli/bearish."},
+    {"alt": 80200, "ust": 80800, "kaynak": "Efloud #48", "not": "Güncel destek 80.400 (LTF'de 80.800 çalıştı). Kaybı düşüşü derinleştirebilir."},
+    {"alt": 76700, "ust": 77500, "kaynak": "Efloud #48", "not": "PMO (aylık açılış) ile 77.000 arası: LTF onay yapıları ile yükseliş teyidi aranacak bölge."},
+    {"alt": 71700, "ust": 72700, "kaynak": "Efloud #48", "not": "Mavi kutu 72.000: 77.000 kaybedilirse. LTF bullish onay sonrası swing pozisyon düşünülebilir."}
+  ],
+  "ETHUSDT": [
+    {"alt": 3220, "ust": 3280, "kaynak": "Efloud #48", "not": "YO kazanılırsa hedef 3.250."},
+    {"alt": 2950, "ust": 2995, "kaynak": "Efloud #48", "not": "YO (yıllık açılış) ~2.971."},
+    {"alt": 2620, "ust": 2650, "kaynak": "Efloud #48", "not": "HTF imbalance 2.636. Tek başına ulaşmak yetmez, ETHBTC de güçlenmeli."},
+    {"alt": 2530, "ust": 2580, "kaynak": "Efloud #48", "not": "PWO üstü ~2.570 güncel direnç; 2.530'dan ret aldı."},
+    {"alt": 2450, "ust": 2480, "kaynak": "Efloud #48", "not": "Mavi kutu: HTF destek. Kaybedildi; yeniden kazanımı beklenmeli, kazanılırsa pozitif senaryo sürer."},
+    {"alt": 2360, "ust": 2410, "kaynak": "Efloud #48", "not": "WO (haftalık açılış) 2.400; hemen altındaki 2.370 kaybı tehlike çanı."},
+    {"alt": 2120, "ust": 2160, "kaynak": "Efloud #48", "not": "Major S/R 2.140: mavi kutu kaybı sonrası yeni alım düşünceleri gündeme gelebilir."}
+  ]
 }
