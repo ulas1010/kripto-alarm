@@ -1,0 +1,47 @@
+name: Backtest
+
+# Sadece elle çalıştırılır. Canlı alarmlardan bağımsızdır, onları durdurmaz.
+on:
+  workflow_dispatch:
+    inputs:
+      ay:
+        description: "Kaç aylık geçmiş test edilsin?"
+        default: "6"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backtest
+  cancel-in-progress: true
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Paketleri kur
+        run: pip install -r requirements.txt
+
+      - name: Backtest çalıştır
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python backtest.py --ay "${{ inputs.ay }}" --telegram
+
+      - name: Sonuçları depoya kaydet
+        run: |
+          git config user.name "kripto-alarm-bot"
+          git config user.email "kripto-alarm-bot@users.noreply.github.com"
+          git add backtest/
+          git commit -m "backtest sonuçları" || exit 0
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q && break; sleep 5; done
