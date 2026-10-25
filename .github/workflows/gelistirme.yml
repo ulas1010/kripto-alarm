@@ -19,12 +19,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - etiket: gelistirme
-            bas: "2025-10-25"
-            bit: "2026-04-25"
-          - etiket: dogrulama
-            bas: "2026-04-25"
-            bit: "2026-10-25"
+          # Önceki turlar: gelistirme (2025-10-25 → 2026-04-25), dogrulama (2026-04-25 → 2026-10-25)
+          - etiket: test1
+            bas: "2025-04-25"
+            bit: "2025-10-25"
+          - etiket: test2
+            bas: "2024-10-25"
+            bit: "2025-04-25"
     steps:
       - uses: actions/checkout@v4
         with:
