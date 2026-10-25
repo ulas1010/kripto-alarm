@@ -1,0 +1,50 @@
+name: Gelistirme Backtest
+
+# Geliştirme deneyleri: iki ayrı dönemin ham sinyallerini üretir (canlı alarmlardan bağımsız).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gelistirme
+  cancel-in-progress: true
+
+jobs:
+  donem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - etiket: gelistirme
+            bas: "2025-10-25"
+            bit: "2026-04-25"
+          - etiket: dogrulama
+            bas: "2026-04-25"
+            bit: "2026-10-25"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Paketleri kur
+        run: pip install -r requirements.txt
+
+      - name: Simülasyon
+        run: python backtest.py --bas "${{ matrix.bas }}" --bit "${{ matrix.bit }}" --etiket "${{ matrix.etiket }}"
+
+      - name: Sonucu kaydet
+        run: |
+          git config user.name "kripto-alarm-bot"
+          git config user.email "kripto-alarm-bot@users.noreply.github.com"
+          git add backtest/ham_${{ matrix.etiket }}.csv
+          git commit -m "geliştirme verisi: ${{ matrix.etiket }}" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push -q && break; sleep $((RANDOM % 10 + 3)); done

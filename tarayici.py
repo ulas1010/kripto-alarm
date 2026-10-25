@@ -188,6 +188,27 @@ def gunluk_trend(df_d: pd.DataFrame) -> str:
     return "yatay / kararsız"
 
 
+def yapisal_trend(df: pd.DataFrame, k: int = 3) -> str:
+    """Efloud'a yakın: tepe/dip yapısından trend.
+    Yükselen tepe + yükselen dip = yükseliş, alçalan tepe + alçalan dip = düşüş.
+    Son dönüş noktası kapanışla kırılırsa yön ona göre güncellenir (yapı kırılımı)."""
+    sw = ardisik_swingler(pivotlar(df, k, k))
+    tepeler = [p[1] for p in sw if p[2] == "H"][-2:]
+    dipler = [p[1] for p in sw if p[2] == "L"][-2:]
+    if len(tepeler) < 2 or len(dipler) < 2:
+        return "yatay / kararsız"
+    son = float(df["close"].iloc[-1])
+    if son < dipler[-1]:
+        return "düşüş"
+    if son > tepeler[-1]:
+        return "yükseliş"
+    if tepeler[-1] > tepeler[-2] and dipler[-1] > dipler[-2]:
+        return "yükseliş"
+    if tepeler[-1] < tepeler[-2] and dipler[-1] < dipler[-2]:
+        return "düşüş"
+    return "yatay / kararsız"
+
+
 # ----------------------------------------------------------------------------
 # HTF BÖLGELERİ
 # ----------------------------------------------------------------------------

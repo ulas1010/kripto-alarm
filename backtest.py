@@ -132,7 +132,9 @@ def simule_et(sembol, veri: dict[str, pd.DataFrame], bas: pd.Timestamp):
             if not bolgeler:
                 continue
             nd = int(np.searchsorted(htf_kapanis["1d"], simdi, side="right"))
-            trend = T.gunluk_trend(veri["1d"].iloc[max(0, nd - 400): nd])
+            gunluk = veri["1d"].iloc[max(0, nd - 400): nd]
+            trend = T.gunluk_trend(gunluk)
+            n4 = htf_sayilar[htf_tf.index("4h")] if "4h" in htf_tf else None
             n = len(pencere)
             for s in T.yapilari_tara(pencere, tf, sembol, bolgeler):
                 if s.i < n - T.LTF_AYAR[tf]["pencere"] or s.kimlik in gorulen:
@@ -146,18 +148,23 @@ def simule_et(sembol, veri: dict[str, pd.DataFrame], bas: pd.Timestamp):
                 if not T.hala_gecerli(s, pencere):
                     continue
                 s.trend = trend
+                giris = float(pencere["close"].iloc[-1])
                 kayitlar.append(dict(
                     sembol=sembol, tf=tf, yapi=s.yapi, yon=s.yon, trend=trend,
+                    trend_yapi_g=T.yapisal_trend(gunluk.tail(150), 3),
+                    trend_yapi_4s=(T.yapisal_trend(veri["4h"].iloc[max(0, n4 - 300): n4], 4) if n4 else ""),
                     gonderim=pd.Timestamp(simdi, tz="UTC"), tetik=s.zaman,
-                    giris=float(pencere["close"].iloc[-1]), stop=s.stop, tp1=s.tp1, tp2=s.tp2,
-                    rr1_plan=s.rr1, rr2_plan=s.rr2, puan=s.puan, bolge_puan=s.bolge_puan))
+                    giris=giris, stop=s.stop, tp1=s.tp1, tp2=s.tp2, geri_cekilme=s.geri_cekilme,
+                    stop_yuzde=round(abs(giris - s.stop) / giris * 100, 3),
+                    rr1_plan=s.rr1, rr2_plan=s.rr2, puan=s.puan, bolge_puan=s.bolge_puan,
+                    bolge_gunluk=s.bolge_etiket == "Günlük bölge"))
             if (idx - bas_idx) % 2000 == 0:
                 print(f"  {sembol} {tf}: {idx - bas_idx}/{len(df) - bas_idx} adım, "
                       f"{len(kayitlar)} sinyal, {time.time() - t0:.0f} sn", flush=True)
     return kayitlar
 
 
-def sonuc_hesapla(k: dict, d15: pd.DataFrame) -> dict:
+def sonuc_hesapla(k: dict, d15: pd.DataFrame, ilk_mum_sadece_stop=False) -> dict:
     t_arr = (d15["t"]).values
     bas = int(np.searchsorted(t_arr, np.datetime64(k["gonderim"].tz_convert(None))))
     bitis = min(len(d15), bas + MAKS_SURE_MUM15[k["tf"]])
@@ -180,6 +187,8 @@ def sonuc_hesapla(k: dict, d15: pd.DataFrame) -> dict:
         sl_ilk = (l[j] <= sl) if uzun else (h[j] >= sl)
         tp1_vurdu = (h[j] >= tp1) if uzun else (l[j] <= tp1)
         tp2_vurdu = (h[j] >= tp2) if uzun else (l[j] <= tp2)
+        if ilk_mum_sadece_stop and j == bas:  # limit dolum mumu: hedef bu mumda sayılmaz
+            tp1_vurdu = tp2_vurdu = False
         # --- TP1 stratejisi
         if sonuc_tp1 is None:
             if sl_ilk:
@@ -211,6 +220,36 @@ def sonuc_hesapla(k: dict, d15: pd.DataFrame) -> dict:
     return dict(durum=sonuc_tp1[0], r_tp1=round(sonuc_tp1[1] - ucret, 3),
                 durum_parcali=sonuc_parcali[0], r_parcali=round(sonuc_parcali[1] - ucret, 3),
                 sure_saat=round((sonuc_tp1[2] - bas + 1) * 0.25, 1), ucret_R=round(ucret, 3))
+
+
+LIMIT_BEKLEME_MUM15 = {"15m": 8, "30m": 16, "1h": 32}
+
+
+def limit_sonuc(k: dict, d15: pd.DataFrame) -> dict:
+    """Efloud'un tercih ettiği giriş: onaydan sonra geri çekilmede limit emir.
+    Breaker/mitigation: kırılan seviyeye; diğerleri: giriş-stop arasının %35'i kadar geriye.
+    Hedef 1'e emir dolmadan gidilirse işlem yok sayılır."""
+    e, sl, tp1 = k["giris"], k["stop"], k["tp1"]
+    uzun = k["yon"] == "long"
+    g = k.get("geri_cekilme")
+    if g is not None and not (isinstance(g, float) and np.isnan(g)) and \
+            ((uzun and sl < g < e) or (not uzun and e < g < sl)):
+        lim = float(g)
+    else:
+        lim = e - 0.35 * (e - sl) if uzun else e + 0.35 * (sl - e)
+    t_arr = d15["t"].values
+    bas = int(np.searchsorted(t_arr, np.datetime64(k["gonderim"].tz_convert(None))))
+    h, l = d15["high"].values, d15["low"].values
+    for j in range(bas, min(len(d15), bas + LIMIT_BEKLEME_MUM15[k["tf"]])):
+        dolu = (l[j] <= lim) if uzun else (h[j] >= lim)
+        if dolu:
+            r = sonuc_hesapla(dict(k, giris=lim, gonderim=pd.Timestamp(t_arr[j], tz="UTC")), d15,
+                              ilk_mum_sadece_stop=True)
+            return dict(lim_fiyat=lim, lim_durum=r["durum"], lim_r_tp1=r["r_tp1"], lim_r_parcali=r["r_parcali"])
+        kacti = (h[j] >= tp1) if uzun else (l[j] <= tp1)
+        if kacti:
+            return dict(lim_fiyat=lim, lim_durum="doldurulmadı", lim_r_tp1=np.nan, lim_r_parcali=np.nan)
+    return dict(lim_fiyat=lim, lim_durum="doldurulmadı", lim_r_tp1=np.nan, lim_r_parcali=np.nan)
 
 
 # ----------------------------------------------------------------------------
@@ -289,10 +328,13 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--ay", type=int, default=6)
     p.add_argument("--telegram", action="store_true")
+    p.add_argument("--bas", help="Başlangıç tarihi, örn. 2025-10-25 (verilirse --ay yok sayılır)")
+    p.add_argument("--bit", help="Bitiş tarihi, örn. 2026-04-25")
+    p.add_argument("--etiket", help="Ham sonuç dosyası adı (geliştirme deneyleri için)")
     a = p.parse_args()
 
-    bit = pd.Timestamp.now(tz="UTC").floor("15min")
-    bas = bit - pd.DateOffset(months=a.ay)
+    bit = pd.Timestamp(a.bit, tz="UTC") if a.bit else pd.Timestamp.now(tz="UTC").floor("15min")
+    bas = pd.Timestamp(a.bas, tz="UTC") if a.bas else bit - pd.DateOffset(months=a.ay)
     print(f"Dönem: {bas} – {bit}", flush=True)
     CIKTI.mkdir(exist_ok=True)
 
@@ -312,6 +354,8 @@ def main():
         kayit = simule_et(sembol, veri, bas)
         for k in kayit:
             k.update(sonuc_hesapla(k, veri["15m"]))
+            if a.etiket:
+                k.update(limit_sonuc(k, veri["15m"]))
         tum += kayit
         print(f"{sembol}: {len(kayit)} sinyal", flush=True)
 
@@ -320,6 +364,10 @@ def main():
         print(metin)
         return
     df = pd.DataFrame(tum)
+    if a.etiket:
+        df.to_csv(CIKTI / f"ham_{a.etiket}.csv", index=False)
+        print(f"{len(df)} sinyal kaydedildi -> ham_{a.etiket}.csv")
+        return
     df.to_csv(CIKTI / "sinyaller.csv", index=False)
     md, tg = rapor_yaz(df, bas, bit)
     (CIKTI / "sonuc.md").write_text(md, encoding="utf-8")
