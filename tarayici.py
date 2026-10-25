@@ -218,14 +218,38 @@ class Bolge:
     ust: float
     puan: int
     kaynak: set = field(default_factory=set)
+    ozel_etiket: str = ""
+    aciklama: str = ""
 
     def icinde(self, fiyat, tol=0.0):
         return self.alt - tol <= fiyat <= self.ust + tol
 
     @property
     def etiket(self):
+        if self.ozel_etiket:
+            return self.ozel_etiket
         tf = "Günlük" if "1d" in self.kaynak else "4 saatlik"
         return f"{tf} bölge"
+
+
+MANUEL_DOSYA = KOK / "bolgeler_manuel.json"
+
+
+def manuel_bolgeler(sembol: str) -> list[Bolge]:
+    """bolgeler_manuel.json: Efloud'un analizlerinden (veya elle) eklenen bölgeler.
+    Biçim: {"BTCUSDT": [{"alt": 64000, "ust": 65000, "kaynak": "Efloud 25.10", "not": "..."}]}"""
+    if not MANUEL_DOSYA.exists():
+        return []
+    try:
+        veri = json.loads(MANUEL_DOSYA.read_text(encoding="utf-8"))
+    except Exception as e:  # noqa: BLE001
+        print("bolgeler_manuel.json okunamadı:", e)
+        return []
+    out = []
+    for z in veri.get(sembol, []):
+        out.append(Bolge(float(z["alt"]), float(z["ust"]), 9, {"manuel"},
+                         ozel_etiket=f"⭐ {z.get('kaynak', 'Manuel')} bölgesi", aciklama=z.get("not", "")))
+    return out
 
 
 def bolgeleri_bul(htf: dict[str, pd.DataFrame], fiyat: float) -> list[Bolge]:
@@ -720,7 +744,10 @@ def sembol_analiz(sembol, veri=None):
     df_d = htf.get("1d") if "1d" in htf else al("1d", 400)
     ltf = {tf: al(tf, 700) for tf in ayarlar.ONAY_ZAMAN_DILIMLERI}
     fiyat = float(ltf[ayarlar.ONAY_ZAMAN_DILIMLERI[0]]["close"].iloc[-1])
-    bolgeler = bolgeleri_bul(htf, fiyat)
+    manuel = manuel_bolgeler(sembol)
+    # Manuel (Efloud) bölgelerle çakışan otomatik bölgeler çıkarılır; manuel olanlar öncelikli
+    bolgeler = manuel + [b for b in bolgeleri_bul(htf, fiyat)
+                         if not any(b.alt <= m.ust and b.ust >= m.alt for m in manuel)]
     # Efloud'a yakın: günlük grafikte tepe/dip yapısından trend (EMA yerine)
     trend = yapisal_trend(df_d.tail(150), 3)
     sinyaller = {}
@@ -784,7 +811,9 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
                "• <b>Ters senaryo:</b> bölge sert yeşil mumla yukarı kırılır, geri test edip üstünde kalırsa → direnç kazanımı (long fikri)"]
     return "\n".join([
         f"{yildiz}📍 <b>{coin} • {tur.upper()} bölgesine geldi</b>",
-        f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket}, güç {b.puan})",
+        f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket}"
+        + ("" if "manuel" in b.kaynak else f", güç {b.puan}") + ")",
+        *([f"📝 {b.aciklama}"] if b.aciklama else []),
         f"Fiyat: {fmt(fiyat)}",
         f"Günlük trend (tepe/dip yapısı): {trend_not}",
         "",
