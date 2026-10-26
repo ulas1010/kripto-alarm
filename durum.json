@@ -36,12 +36,6 @@
  "son_ozet": "2026-10-26",
  "izleme": [
   {
-   "sembol": "BTCUSDT",
-   "orta": 80500.0,
-   "olay": "kayip",
-   "zaman": "2026-10-25T23:31:38.662784+00:00"
-  },
-  {
    "sembol": "ETHUSDT",
    "orta": 2273.440125,
    "olay": "giris",
