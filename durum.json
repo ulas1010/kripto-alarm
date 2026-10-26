@@ -28,7 +28,7 @@
   "BTCUSDT|1h|retest|short|2026-10-26T01:00"
  ],
  "son_kalp_atisi": "2026-10-22",
- "son_ozet": "2026-10-25",
+ "son_ozet": "2026-10-26",
  "izleme": [
   {
    "sembol": "BTCUSDT",
@@ -81,5 +81,6 @@
    }
   ],
   "kapali": []
- }
+ },
+ "son_haftalik": "2026-W44"
 }
