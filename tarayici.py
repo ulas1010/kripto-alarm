@@ -823,6 +823,10 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
         *bak,
         "",
         "Onay yoksa işlem yok. Stop, yapının bozulduğu noktanın ötesine.",
+        ("🎯 Bu bir Efloud bölgesi: burada onay yapısı oluşursa bot ayrıca ADAY mesajı atar."
+         if "manuel" in b.kaynak else
+         "ℹ️ Bu OTOMATİK bir bölge (Efloud'un değil): burada aday mesajı GELMEZ, onayı kendin aramalısın. "
+         "Otomatik bölgeler backtest'te zayıf çıktı, Efloud bölgelerine öncelik ver."),
         "ℹ️ Bu bir işlem sinyali değil, sadece izleme uyarısıdır.",
     ])
 
