@@ -14,7 +14,9 @@ IZLEME_MIN_PUAN = 3
 IZLEME_TEKRAR_SAAT = 24
 
 # Takip edilecek coinler
-SEMBOLLER = ["BTCUSDT", "ETHUSDT"]
+# XAUUSDT = altın, XAGUSDT = gümüş (OKX vadeli kontrat fiyatı, 7/24).
+# Not: Efloud bölgeleri sadece BTC/ETH için var; altın/gümüşte şimdilik sadece otomatik bölge uyarıları gelir.
+SEMBOLLER = ["BTCUSDT", "ETHUSDT", "XAUUSDT", "XAGUSDT"]
 
 # Onay (confirmation) aranacak düşük zaman dilimleri.
 # Efloud: 4s / 1s / 15dk gibi zaman dilimlerine inip onay arıyor.

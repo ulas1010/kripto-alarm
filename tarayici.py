@@ -85,8 +85,17 @@ def _binance(sembol, tf, limit):
     return _df([k[:6] for k in r.json()])
 
 
+# Emtialar (altın, gümüş): OKX'teki USDT vadeli kontratları (7/24 fiyat)
+OKX_OZEL = {"XAUUSDT": "XAU-USDT-SWAP", "XAGUSDT": "XAG-USDT-SWAP"}
+GORUNEN_AD = {"BTCUSDT": "BTC/USDT", "ETHUSDT": "ETH/USDT", "XAUUSDT": "ALTIN (XAU)", "XAGUSDT": "GÜMÜŞ (XAG)"}
+
+
+def ad(sembol: str) -> str:
+    return GORUNEN_AD.get(sembol, sembol.replace("USDT", "/USDT"))
+
+
 def _okx(sembol, tf, limit):
-    inst = sembol.replace("USDT", "-USDT")
+    inst = OKX_OZEL.get(sembol, sembol.replace("USDT", "-USDT"))
     bar = {"15m": "15m", "30m": "30m", "1h": "1H", "4h": "4Hutc", "1d": "1Dutc"}[tf]
     rows, after = [], None
     while len(rows) < limit:
@@ -125,17 +134,18 @@ KAYNAKLAR = [("Binance", _binance), ("OKX", _okx), ("Kraken", _kraken)]
 def veri_cek(sembol, tf, limit=700) -> pd.DataFrame:
     """Sırayla birkaç borsayı dener; ilk çalışandan veriyi alır. Sadece kapanmış mumlar döner."""
     hatalar = []
-    for ad, fn in KAYNAKLAR:
+    kaynaklar = [("OKX", _okx)] if sembol in OKX_OZEL else KAYNAKLAR
+    for kaynak_adi, fn in kaynaklar:
         try:
             df = fn(sembol, tf, limit)
             simdi = pd.Timestamp.now(tz="UTC")
             df = df[df["t"] + pd.Timedelta(minutes=TF_DAKIKA[tf]) <= simdi].reset_index(drop=True)
             if len(df) > 50:
-                df.attrs["kaynak"] = ad
+                df.attrs["kaynak"] = kaynak_adi
                 return df
-            hatalar.append(f"{ad}: az veri")
+            hatalar.append(f"{kaynak_adi}: az veri")
         except Exception as e:  # noqa: BLE001
-            hatalar.append(f"{ad}: {e}")
+            hatalar.append(f"{kaynak_adi}: {e}")
     raise RuntimeError(f"{sembol} {tf} verisi alınamadı -> " + " | ".join(hatalar))
 
 
@@ -652,7 +662,7 @@ def gecikme_dk(s: Sinyal) -> int:
 def sinyal_metni(s: Sinyal, ornek=False) -> str:
     emoji = "🟢" if s.yon == "long" else "🔴"
     yon = "LONG adayı" if s.yon == "long" else "SHORT adayı"
-    coin = s.sembol.replace("USDT", "/USDT")
+    coin = ad(s.sembol)
     trend_not = ""
     if s.trend:
         ters = (s.trend == "düşüş" and s.yon == "long") or (s.trend == "yükseliş" and s.yon == "short")
@@ -767,7 +777,7 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
         alt = sorted([b for b in a["bolgeler"] if b.ust < f], key=lambda b: -b.ust)[:2]
         ust = sorted([b for b in a["bolgeler"] if b.alt > f], key=lambda b: b.alt)[:2]
         icinde = [b for b in a["bolgeler"] if b.icinde(f)]
-        satir = [f"📊 <b>{sembol.replace('USDT', '/USDT')}</b>  {fmt(f)}",
+        satir = [f"📊 <b>{ad(sembol)}</b>  {fmt(f)}",
                  f"Günlük trend (tepe/dip yapısı): {a['trend']}"]
         if icinde:
             satir.append(f"📍 Fiyat şu an bir bölgenin içinde: {fmt(icinde[0].alt)} – {fmt(icinde[0].ust)}"
@@ -786,7 +796,7 @@ def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
 # İZLEME MODU: işlem sinyali yok, sadece "fiyat önemli bölgeye geldi, grafiğe bak"
 # ----------------------------------------------------------------------------
 def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
-    coin = sembol.replace("USDT", "/USDT")
+    coin = ad(sembol)
     destek = tur == "destek"
     yon = "long" if destek else "short"
     yildiz = ""
@@ -832,7 +842,7 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
 
 
 def kirilim_metni(sembol, b: Bolge, olay: str, fiyat: float, trend: str) -> str:
-    coin = sembol.replace("USDT", "/USDT")
+    coin = ad(sembol)
     if olay == "kayip":
         bas = f"🔻 <b>{coin} • bölge AŞAĞI KIRILDI</b> (15dk kapanış altında)"
         bak = ["• <b>Devam senaryosu (short fikri):</b> fiyat bölgeyi aşağıdan geri test edip yine altında "
@@ -992,7 +1002,7 @@ def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list) -> list[str]:
 
 
 def onay_adayi_metni(s: Sinyal, no: int, aciklama: str, kontrol: list[str] | None = None) -> str:
-    coin = s.sembol.replace("USDT", "/USDT")
+    coin = ad(s.sembol)
     emoji = "🟢" if s.yon == "long" else "🔴"
     stop_y = abs(s.giris - s.stop) / s.giris * 100
     ilis = trend_iliskisi(s.trend, s.yon)
@@ -1113,7 +1123,7 @@ def kagit_guncelle(tg, analizler, durum) -> int:
         kapanan += 1
         ikon = {"hedef1": "✅", "stop": "❌", "süre doldu": "⌛"}[sonuc[0]]
         tg.mesaj(f"📒 <b>Kâğıt takip #{p['no']} kapandı</b> {ikon}\n"
-                 f"{p['sembol'].replace('USDT', '/USDT')} • {TF_ADI[p['tf']]} • {YAPI_ADI[p['yapi']]} "
+                 f"{ad(p['sembol'])} • {TF_ADI[p['tf']]} • {YAPI_ADI[p['yapi']]} "
                  f"{p['yon'].upper()} ({p['iliski']})\n"
                  f"Sonuç: <b>{sonuc[0]}</b> • {r:+.2f}R (komisyon dahil)")
     kagit["acik"] = kalan
