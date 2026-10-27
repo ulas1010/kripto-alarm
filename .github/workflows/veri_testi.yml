@@ -1,0 +1,20 @@
+name: Veri Testi
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kaynakları dene
+        run: |
+          dene() { k=$(curl -s -o /tmp/o -w "%{http_code}" -m 20 "$2"); echo "::notice::$1 -> HTTP $k | $(head -c 160 /tmp/o | tr '\n' ' ')"; }
+          dene "binance-fapi XAU" "https://fapi.binance.com/fapi/v1/klines?symbol=XAUUSDT&interval=15m&limit=2"
+          dene "binance-fapi XAG" "https://fapi.binance.com/fapi/v1/klines?symbol=XAGUSDT&interval=15m&limit=2"
+          dene "binance-spot PAXG" "https://data-api.binance.vision/api/v3/klines?symbol=PAXGUSDT&interval=15m&limit=2"
+          dene "okx XAU swap" "https://www.okx.com/api/v5/market/candles?instId=XAU-USDT-SWAP&bar=15m&limit=2"
+          dene "okx XAG swap" "https://www.okx.com/api/v5/market/candles?instId=XAG-USDT-SWAP&bar=15m&limit=2"
+          dene "okx XAUT spot" "https://www.okx.com/api/v5/market/candles?instId=XAUT-USDT&bar=15m&limit=2"
+          dene "bybit XAUUSDT" "https://api.bybit.com/v5/market/kline?category=linear&symbol=XAUUSDT&interval=15&limit=2"
+          dene "bybit XAGUSDT" "https://api.bybit.com/v5/market/kline?category=linear&symbol=XAGUSDT&interval=15&limit=2"
+          dene "yahoo GC=F" "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=15m&range=1d"
+          dene "yahoo SI=F" "https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=15m&range=1d"
