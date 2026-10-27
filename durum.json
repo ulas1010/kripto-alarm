@@ -39,16 +39,16 @@
  "son_ozet": "2026-10-27",
  "izleme": [
   {
-   "sembol": "BTCUSDT",
-   "orta": 80500.0,
-   "olay": "giris",
-   "zaman": "2026-10-26T15:01:40.937849+00:00"
-  },
-  {
    "sembol": "ETHUSDT",
    "orta": 2279.010875,
    "olay": "giris",
    "zaman": "2026-10-27T07:01:37.031239+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 80500.0,
+   "olay": "icinde",
+   "zaman": "2026-10-27T15:01:44.907401+00:00"
   }
  ],
  "kagit": {
