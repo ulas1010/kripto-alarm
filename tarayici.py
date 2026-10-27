@@ -96,7 +96,7 @@ def ad(sembol: str) -> str:
 
 def _okx(sembol, tf, limit):
     inst = OKX_OZEL.get(sembol, sembol.replace("USDT", "-USDT"))
-    bar = {"15m": "15m", "30m": "30m", "1h": "1H", "4h": "4Hutc", "1d": "1Dutc"}[tf]
+    bar = {"15m": "15m", "30m": "30m", "1h": "1H", "4h": "4H", "1d": "1Dutc"}[tf]
     rows, after = [], None
     while len(rows) < limit:
         params = dict(instId=inst, bar=bar, limit=100)

@@ -61,7 +61,7 @@ def _binance_gecmis(sembol, tf, bas_ms, bit_ms):
 
 def _okx_gecmis(sembol, tf, bas_ms, bit_ms):
     inst = sembol.replace("USDT", "-USDT")
-    bar = {"15m": "15m", "30m": "30m", "1h": "1H", "4h": "4Hutc", "1d": "1Dutc"}[tf]
+    bar = {"15m": "15m", "30m": "30m", "1h": "1H", "4h": "4H", "1d": "1Dutc"}[tf]
     rows, after = [], bit_ms
     while True:
         r = requests.get("https://www.okx.com/api/v5/market/history-candles",
