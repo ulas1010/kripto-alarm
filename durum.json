@@ -32,7 +32,8 @@
   "BTCUSDT|1h|sfp|short|2026-10-26T16:00",
   "BTCUSDT|15m|mitigation|short|2026-10-26T20:15",
   "BTCUSDT|15m|retest|short|2026-10-27T01:45",
-  "BTCUSDT|1h|mitigation|short|2026-10-27T06:00"
+  "BTCUSDT|1h|mitigation|short|2026-10-27T06:00",
+  "BTCUSDT|15m|sfp|short|2026-10-27T11:00"
  ],
  "son_kalp_atisi": "2026-10-22",
  "son_ozet": "2026-10-27",
