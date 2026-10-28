@@ -70,23 +70,7 @@
  ],
  "kagit": {
   "sayac": 7,
-  "acik": [
-   {
-    "no": 7,
-    "sembol": "ETHUSDT",
-    "tf": "1h",
-    "yapi": "breaker",
-    "yon": "short",
-    "trend": "düşüş",
-    "iliski": "trend yönünde",
-    "giris": 2340.0,
-    "stop": 2388.6870714285715,
-    "tp1": 2282.46,
-    "rr1": 1.18,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-10-28T13:00:00+00:00"
-   }
-  ],
+  "acik": [],
   "kapali": [
    {
     "no": 2,
@@ -177,6 +161,24 @@
     "sonuc": "süre doldu",
     "R": 0.04,
     "kapanis": "2026-10-28T15:31:55.130385+00:00"
+   },
+   {
+    "no": 7,
+    "sembol": "ETHUSDT",
+    "tf": "1h",
+    "yapi": "breaker",
+    "yon": "short",
+    "trend": "düşüş",
+    "iliski": "trend yönünde",
+    "giris": 2340.0,
+    "stop": 2388.6870714285715,
+    "tp1": 2282.46,
+    "rr1": 1.18,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-10-28T13:00:00+00:00",
+    "sonuc": "stop",
+    "R": -1.05,
+    "kapanis": "2026-10-28T20:16:58.893528+00:00"
    }
   ]
  },
