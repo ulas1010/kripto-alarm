@@ -85,21 +85,6 @@
     "zaman": "2026-10-26T15:30:00+00:00"
    },
    {
-    "no": 6,
-    "sembol": "ETHUSDT",
-    "tf": "15m",
-    "yapi": "mitigation",
-    "yon": "short",
-    "trend": "düşüş",
-    "iliski": "trend yönünde",
-    "giris": 2361.7,
-    "stop": 2388.2012142857143,
-    "tp1": 2329.63,
-    "rr1": 1.21,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-10-28T11:15:00+00:00"
-   },
-   {
     "no": 7,
     "sembol": "ETHUSDT",
     "tf": "1h",
@@ -169,6 +154,24 @@
     "sonuc": "stop",
     "R": -1.09,
     "kapanis": "2026-10-28T13:46:52.362430+00:00"
+   },
+   {
+    "no": 6,
+    "sembol": "ETHUSDT",
+    "tf": "15m",
+    "yapi": "mitigation",
+    "yon": "short",
+    "trend": "düşüş",
+    "iliski": "trend yönünde",
+    "giris": 2361.7,
+    "stop": 2388.2012142857143,
+    "tp1": 2329.63,
+    "rr1": 1.21,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-10-28T11:15:00+00:00",
+    "sonuc": "hedef1",
+    "R": 1.12,
+    "kapanis": "2026-10-28T14:02:01.339182+00:00"
    }
   ]
  },
