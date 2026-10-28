@@ -70,21 +70,6 @@
   "sayac": 7,
   "acik": [
    {
-    "no": 3,
-    "sembol": "BTCUSDT",
-    "tf": "15m",
-    "yapi": "breaker",
-    "yon": "long",
-    "trend": "yatay / kararsız",
-    "iliski": "yatay piyasa",
-    "giris": 80582.01,
-    "stop": 79417.17257142857,
-    "tp1": 81846.26,
-    "rr1": 1.09,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-10-26T15:30:00+00:00"
-   },
-   {
     "no": 7,
     "sembol": "ETHUSDT",
     "tf": "1h",
@@ -172,6 +157,24 @@
     "sonuc": "hedef1",
     "R": 1.12,
     "kapanis": "2026-10-28T14:02:01.339182+00:00"
+   },
+   {
+    "no": 3,
+    "sembol": "BTCUSDT",
+    "tf": "15m",
+    "yapi": "breaker",
+    "yon": "long",
+    "trend": "yatay / kararsız",
+    "iliski": "yatay piyasa",
+    "giris": 80582.01,
+    "stop": 79417.17257142857,
+    "tp1": 81846.26,
+    "rr1": 1.09,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-10-26T15:30:00+00:00",
+    "sonuc": "süre doldu",
+    "R": 0.04,
+    "kapanis": "2026-10-28T15:31:55.130385+00:00"
    }
   ]
  },
