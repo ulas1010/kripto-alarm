@@ -50,12 +50,6 @@
  "son_ozet": "2026-10-28",
  "izleme": [
   {
-   "sembol": "ETHUSDT",
-   "orta": 2385.0,
-   "olay": "giris",
-   "zaman": "2026-10-27T21:46:57.748876+00:00"
-  },
-  {
    "sembol": "XAUUSDT",
    "orta": 4087.4087499999996,
    "olay": "giris",
@@ -66,6 +60,12 @@
    "orta": 80500.0,
    "olay": "icinde",
    "zaman": "2026-10-28T15:01:58.909244+00:00"
+  },
+  {
+   "sembol": "ETHUSDT",
+   "orta": 2385.0,
+   "olay": "icinde",
+   "zaman": "2026-10-28T22:01:58.469808+00:00"
   }
  ],
  "kagit": {
