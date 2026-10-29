@@ -75,27 +75,17 @@
    "orta": 80500.0,
    "olay": "kayip",
    "zaman": "2026-10-29T02:01:56.699978+00:00"
+  },
+  {
+   "sembol": "ETHUSDT",
+   "orta": 2279.010875,
+   "olay": "giris",
+   "zaman": "2026-10-29T02:16:58.697498+00:00"
   }
  ],
  "kagit": {
   "sayac": 8,
-  "acik": [
-   {
-    "no": 8,
-    "sembol": "ETHUSDT",
-    "tf": "1h",
-    "yapi": "retest",
-    "yon": "short",
-    "trend": "düşüş",
-    "iliski": "trend yönünde",
-    "giris": 2354.51,
-    "stop": 2393.3430714285714,
-    "tp1": 2305.30175,
-    "rr1": 1.27,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-10-29T01:00:00+00:00"
-   }
-  ],
+  "acik": [],
   "kapali": [
    {
     "no": 2,
@@ -204,6 +194,24 @@
     "sonuc": "stop",
     "R": -1.05,
     "kapanis": "2026-10-28T20:16:58.893528+00:00"
+   },
+   {
+    "no": 8,
+    "sembol": "ETHUSDT",
+    "tf": "1h",
+    "yapi": "retest",
+    "yon": "short",
+    "trend": "düşüş",
+    "iliski": "trend yönünde",
+    "giris": 2354.51,
+    "stop": 2393.3430714285714,
+    "tp1": 2305.30175,
+    "rr1": 1.27,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-10-29T01:00:00+00:00",
+    "sonuc": "hedef1",
+    "R": 1.21,
+    "kapanis": "2026-10-29T02:16:59.955185+00:00"
    }
   ]
  },
