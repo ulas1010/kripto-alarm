@@ -46,7 +46,8 @@
   "BTCUSDT|15m|mitigation|long|2026-10-28T17:45",
   "ETHUSDT|15m|retest|short|2026-10-28T18:45",
   "ETHUSDT|15m|mitigation|short|2026-10-29T00:45",
-  "ETHUSDT|1h|retest|short|2026-10-29T00:00"
+  "ETHUSDT|1h|retest|short|2026-10-29T00:00",
+  "BTCUSDT|15m|breaker|short|2026-10-29T01:45"
  ],
  "son_kalp_atisi": "2026-10-29",
  "son_ozet": "2026-10-28",
@@ -68,6 +69,12 @@
    "orta": 4087.4087499999996,
    "olay": "giris",
    "zaman": "2026-10-29T01:31:54.729597+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 80500.0,
+   "olay": "kayip",
+   "zaman": "2026-10-29T02:01:56.699978+00:00"
   }
  ],
  "kagit": {
