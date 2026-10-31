@@ -64,12 +64,6 @@
  "son_ozet": "2026-10-31",
  "izleme": [
   {
-   "sembol": "XAUUSDT",
-   "orta": 3913.80875,
-   "olay": "giris",
-   "zaman": "2026-10-30T13:47:02.098739+00:00"
-  },
-  {
    "sembol": "BTCUSDT",
    "orta": 77100.0,
    "olay": "kayip",
