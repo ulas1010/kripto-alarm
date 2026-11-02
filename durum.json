@@ -77,27 +77,17 @@
    "orta": 3976.05625,
    "olay": "giris",
    "zaman": "2026-11-02T13:46:52.660628+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 77100.0,
+   "olay": "giris",
+   "zaman": "2026-11-02T16:01:54.932438+00:00"
   }
  ],
  "kagit": {
   "sayac": 9,
-  "acik": [
-   {
-    "no": 9,
-    "sembol": "BTCUSDT",
-    "tf": "1h",
-    "yapi": "mitigation",
-    "yon": "long",
-    "trend": "düşüş",
-    "iliski": "trend tersi",
-    "giris": 78354.0,
-    "stop": 77427.78335714286,
-    "tp1": 80200.0,
-    "rr1": 1.99,
-    "bolge": "⭐ Efloud #48 bölgesi",
-    "zaman": "2026-11-02T00:00:00+00:00"
-   }
-  ],
+  "acik": [],
   "kapali": [
    {
     "no": 2,
@@ -224,6 +214,24 @@
     "sonuc": "hedef1",
     "R": 1.21,
     "kapanis": "2026-10-29T02:16:59.955185+00:00"
+   },
+   {
+    "no": 9,
+    "sembol": "BTCUSDT",
+    "tf": "1h",
+    "yapi": "mitigation",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 78354.0,
+    "stop": 77427.78335714286,
+    "tp1": 80200.0,
+    "rr1": 1.99,
+    "bolge": "⭐ Efloud #48 bölgesi",
+    "zaman": "2026-11-02T00:00:00+00:00",
+    "sonuc": "stop",
+    "R": -1.08,
+    "kapanis": "2026-11-02T16:01:56.539226+00:00"
    }
   ]
  },
