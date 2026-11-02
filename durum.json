@@ -64,7 +64,7 @@
   "BTCUSDT|1h|mitigation|long|2026-11-01T23:00"
  ],
  "son_kalp_atisi": "2026-10-29",
- "son_ozet": "2026-11-01",
+ "son_ozet": "2026-11-02",
  "izleme": [
   {
    "sembol": "XAUUSDT",
@@ -227,5 +227,5 @@
    }
   ]
  },
- "son_haftalik": "2026-W44"
+ "son_haftalik": "2026-W45"
 }
