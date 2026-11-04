@@ -57,8 +57,9 @@ def analyze(df):
     d = df.copy()
     d["ma"] = d["Close"].rolling(MA_LEN).mean()
     d["above"] = d["Close"] > d["ma"]
-    d["cross_up"] = d["above"] & ~d["above"].shift(1, fill_value=False)
-    d["cross_dn"] = ~d["above"] & d["above"].shift(1, fill_value=False)
+    valid = d["ma"].shift(1).notna()   # MA'nın ilk hesaplandığı gün kırılım sayılmaz
+    d["cross_up"] = d["above"] & ~d["above"].shift(1, fill_value=False) & valid
+    d["cross_dn"] = ~d["above"] & d["above"].shift(1, fill_value=False) & valid
     # Trend onayı: MA yatay ya da yükseliyor (en fazla %0.5 düşüşe izin)
     d["ma_up"] = d["ma"] >= d["ma"].shift(SLOPE_LEN) * 0.995
 
@@ -89,7 +90,7 @@ def analyze(df):
             run = (since["Close"] >= since["ma"] * (1 + MIN_RUN_PCT / 100)).to_numpy()
             if run[:-1].any():
                 k = int(run.argmax())
-                after_run = since.iloc[k:]
+                after_run = since.iloc[k + 1:]   # uzaklaşma gününden SONRAKİ mumlar
                 # Uzaklaşmadan sonraki İLK retest mi? (bildirimi tekrar tekrar atmasın)
                 first_retest = not after_run["retest_bar"].iloc[:-1].any()
             else:
