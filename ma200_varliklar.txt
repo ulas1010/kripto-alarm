@@ -1,16 +1,22 @@
-# Takip edilecek varlıklar (Yahoo Finance sembolleri). # ile başlayan satırlar yok sayılır.
-# Kripto
-BTC-USD
-ETH-USD
-SOL-USD
-# Borsa İstanbul (.IS ekiyle)
-XU100.IS
-THYAO.IS
-ASELS.IS
-# ABD
-SPY
-QQQ
+# 200 MA Retest botunun takip ettiği varlıklar (Yahoo Finance sembolleri).
+# Liste, 10 yıllık backtest'te en tutarlı çıkanlardan seçildi (backtest/ma200_sonuc.csv).
+# Hepsi TxFlow'da perp olarak işlem görüyor. # ile başlayan satırlar yok sayılır.
+
+# Hisse / ETF
 NVDA
-# Emtia / Döviz
-GC=F        # Altın
-USDTRY=X
+GOOGL
+META
+AMD
+AVGO
+MRVL
+MU
+MSTR
+ARM
+SPY
+
+# Emtia
+GC=F        # XAU (Altın)
+SI=F        # XAG (Gümüş)
+
+# Kripto (backtest'te kripto zayıf; sadece ETH bırakıldı)
+ETH-USD

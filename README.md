@@ -6,9 +6,11 @@
 > Mod `ayarlar.py` → `CALISMA_MODU` ile değiştirilebilir. Backtest sonuçları: `backtest/sonuc.md`.
 
 > **Ek: 200 MA Retest Alarmı (04.11.2026)** — `ma200.py`, her sabah 09:07'de aynı Telegram botundan bildirim atar.
-> Kural: 200 günlük MA yukarı kırılır → fiyat en az %5 uzaklaşır → MA'ya geri gelip yeşil mumla üstünde kapatır = **RETEST AL**
-> (stop + 1:5 hedef mesajda). Ayrıca kırılım yukarı/aşağı ve "MA'ya yaklaşıyor" uyarıları gelir.
-> Varlık listesi: `ma200_varliklar.txt` (Yahoo sembolleri: `BTC-USD`, `THYAO.IS`, `GC=F`...). Ayarlar `ma200.py` başında.
+> **Giriş:** 200 MA yukarı kırılır → fiyat en az %5 uzaklaşır → MA'ya geri gelip yeşil mumla üstünde kapatır (retest).
+> **Stop:** min(mum dibi, MA) − %1 · **TP1:** 3R'de yarısını kapat, stopu girişe çek · **Kalan yarı:** günlük kapanış 200 MA altına inince kapat.
+> Bot açık işlemleri `ma200_durum.json`'da takip eder; TP1, stop ve çıkışta ayrıca mesaj atar. Mesajda pozisyon büyüklüğü de yazar
+> (`ma200.py` → `KASA_USD`, `RISK_YUZDE`). Varlıklar: `ma200_varliklar.txt`.
+> Backtest (10 yıl, seçilmiş 13 varlık, 76 işlem): kazanma %50, işlem başı +2,3R, en kötü düşüş −9R. Detay: `backtest/ma200_cikis_testi.py`.
 > Test: Actions → **200 MA Retest Alarmi** → Run workflow (özet=1 ile sinyal olmasa da mesaj gelir).
 
 
