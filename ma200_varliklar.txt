@@ -1,0 +1,16 @@
+# Takip edilecek varlıklar (Yahoo Finance sembolleri). # ile başlayan satırlar yok sayılır.
+# Kripto
+BTC-USD
+ETH-USD
+SOL-USD
+# Borsa İstanbul (.IS ekiyle)
+XU100.IS
+THYAO.IS
+ASELS.IS
+# ABD
+SPY
+QQQ
+NVDA
+# Emtia / Döviz
+GC=F        # Altın
+USDTRY=X

@@ -1,0 +1,32 @@
+name: 200 MA Retest Alarmi
+
+on:
+  schedule:
+    - cron: "7 6 * * *"   # Her gün 06:07 UTC = 09:07 Türkiye saati
+  workflow_dispatch:
+    inputs:
+      ozet:
+        description: "Sinyal olmasa da özet gönder (test için 1)"
+        default: "1"
+
+concurrency:
+  group: ma200-alarm
+  cancel-in-progress: false
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Paketleri kur
+        run: pip install yfinance pandas requests
+      - name: 200 MA kontrolü
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DAILY_SUMMARY: ${{ github.event.inputs.ozet || '0' }}
+        run: python ma200.py

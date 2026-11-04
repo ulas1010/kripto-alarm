@@ -5,6 +5,12 @@
 > Bot sadece fiyat güçlü bir günlük/4 saatlik bölgeye geldiğinde haber veriyor, onay yapısını sen arıyorsun.
 > Mod `ayarlar.py` → `CALISMA_MODU` ile değiştirilebilir. Backtest sonuçları: `backtest/sonuc.md`.
 
+> **Ek: 200 MA Retest Alarmı (04.11.2026)** — `ma200.py`, her sabah 09:07'de aynı Telegram botundan bildirim atar.
+> Kural: 200 günlük MA yukarı kırılır → fiyat en az %5 uzaklaşır → MA'ya geri gelip yeşil mumla üstünde kapatır = **RETEST AL**
+> (stop + 1:5 hedef mesajda). Ayrıca kırılım yukarı/aşağı ve "MA'ya yaklaşıyor" uyarıları gelir.
+> Varlık listesi: `ma200_varliklar.txt` (Yahoo sembolleri: `BTC-USD`, `THYAO.IS`, `GC=F`...). Ayarlar `ma200.py` başında.
+> Test: Actions → **200 MA Retest Alarmi** → Run workflow (özet=1 ile sinyal olmasa da mesaj gelir).
+
 
 Efloud'un **Confirmation (Onay) Mekanizmaları** videosundaki yapıları BTC ve ETH'de otomatik arar.
 Bir yapı oluştuğunda Telegram'a **grafikli** bir mesaj gönderir.
