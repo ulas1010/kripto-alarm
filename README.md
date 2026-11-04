@@ -5,13 +5,12 @@
 > Bot sadece fiyat güçlü bir günlük/4 saatlik bölgeye geldiğinde haber veriyor, onay yapısını sen arıyorsun.
 > Mod `ayarlar.py` → `CALISMA_MODU` ile değiştirilebilir. Backtest sonuçları: `backtest/sonuc.md`.
 
-> **Ek: 200 MA Retest Alarmı (04.11.2026)** — `ma200.py`, her sabah 09:07'de aynı Telegram botundan bildirim atar.
-> **Giriş:** 200 MA yukarı kırılır → fiyat en az %5 uzaklaşır → MA'ya geri gelip yeşil mumla üstünde kapatır (retest).
-> **Stop:** min(mum dibi, MA) − %1 · **TP1:** 3R'de yarısını kapat, stopu girişe çek · **Kalan yarı:** günlük kapanış 200 MA altına inince kapat.
-> Bot açık işlemleri `ma200_durum.json`'da takip eder; TP1, stop ve çıkışta ayrıca mesaj atar. Mesajda pozisyon büyüklüğü de yazar
-> (`ma200.py` → `KASA_USD`, `RISK_YUZDE`). Varlıklar: `ma200_varliklar.txt`.
-> Backtest (10 yıl, seçilmiş 13 varlık, 76 işlem): kazanma %50, işlem başı +2,3R, en kötü düşüş −9R. Detay: `backtest/ma200_cikis_testi.py`.
-> Test: Actions → **200 MA Retest Alarmi** → Run workflow (özet=1 ile sinyal olmasa da mesaj gelir).
+> **Ek: 200 MA Alarmı (04.11.2026)** — `ma200.py`, her sabah 09:07'de aynı Telegram botundan bildirim atar. İki giriş türü:
+> 📈 **KIRILIM AL** (ana giriş, %0,5 risk): günlük kapanış 200 MA'nın üstüne çıkar. Backtest: 308 işlem, kazanma %35, ort. +1,3R, en kötü düşüş −23R.
+> 🟢 **RETEST AL** (kaçırdıysan ya da ekleme, %1 risk): fiyat %5+ uzaklaşıp MA'ya geri gelir, yeşil mumla üstünde kapatır. Backtest: 72 işlem, kazanma %49, ort. +1,9R, en kötü düşüş −9R.
+> **Ortak çıkış:** Stop = min(mum dibi, MA) − %1 · TP1 3R'de yarısını kapat, stopu girişe çek · kalan yarı günlük kapanış 200 MA altına inince kapanır.
+> Bot açık işlemleri `ma200_durum.json`'da takip eder; TP1, stop ve çıkışta ayrıca mesaj atar. Pozisyon büyüklüğü: `ma200.py` → `KASA_USD`, `RISK_YUZDE`.
+> Varlıklar: `ma200_varliklar.txt`. Karşılaştırma: `backtest/ma200_kirilim_testi.py`. Test: Actions → **200 MA Retest Alarmi** → Run workflow.
 
 
 Efloud'un **Confirmation (Onay) Mekanizmaları** videosundaki yapıları BTC ve ETH'de otomatik arar.

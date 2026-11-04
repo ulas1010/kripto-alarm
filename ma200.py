@@ -2,9 +2,12 @@
 200 Günlük MA - Kırılım + Retest bildirim botu (karma çıkışlı sistem)
 
 SİSTEM (10 yıllık backtest'te en kazançlı çıkan, bkz. backtest/ma200_cikis_testi.py):
-  Giriş : 200 MA yukarı kırılır -> fiyat MA'dan en az %5 uzaklaşır -> 120 gün içinde MA'ya
-          geri gelir (%2 tolerans) ve yeşil mumla MA üstünde kapatır (MA yatay/yükselen).
-          Giriş = sinyal mumunun kapanışı.
+  İki giriş türü (ikisi de aynı çıkış kurallarıyla yönetilir):
+  KIRILIM AL: günlük kapanış 200 MA'nın üstüne çıktığı gün (ana giriş, %0,5 risk).
+  RETEST AL : kırılımdan sonra fiyat MA'dan en az %5 uzaklaşır -> 120 gün içinde MA'ya
+              geri gelir (%2 tolerans) ve yeşil mumla MA üstünde kapatır (MA yatay/yükselen)
+              (kırılımı kaçırdıysan ya da ekleme için, %1 risk).
+  Giriş = sinyal mumunun kapanışı.
   Stop  : min(sinyal mumunun dibi, MA) * 0.99  ->  1R = giriş - stop
   TP1   : 3R'de pozisyonun YARISI kapatılır, stop girişe (başabaş) çekilir.
   Kalan : günlük kapanış 200 MA'nın altına inince kapatılır (trendi sürer).
@@ -38,10 +41,14 @@ TP1_ORAN = 0.5          # TP1'de kapatılacak kısım
 
 # ---------------- Pozisyon büyüklüğü ----------------
 KASA_USD = 1000.0       # işlem kasan (USD) — kendine göre değiştir
-RISK_YUZDE = 1.0        # işlem başına riske edilecek kasa yüzdesi (1R)
+RISK_YUZDE = {"KIRILIM": 0.5, "RETEST": 1.0}   # işlem başına riske edilecek kasa yüzdesi (1R)
 
 # Backtest özeti (mesajlarda gösterilir)
-BT_OZET = "10 yıl backtest (seçilmiş liste, 76 işlem): kazanma %50, işlem başı ort. +2,3R"
+BT_OZET = {
+    "KIRILIM": "10 yıl backtest (13 varlık, 308 işlem): kazanma %35, işlem başı ort. +1,3R. Çoğu işlem küçük stopla biter, kâr büyük trendlerden gelir.",
+    "RETEST": "10 yıl backtest (13 varlık, 72 işlem): kazanma %49, işlem başı ort. +1,9R",
+}
+BASLIK = {"KIRILIM": "📈 *{} — KIRILIM AL* (200 MA)", "RETEST": "🟢 *{} — RETEST AL* (200 MA)"}
 
 # Yahoo sembolü -> TxFlow / PopDEX adı
 AD = {"GC=F": "XAU (Altın)", "SI=F": "XAG (Gümüş)", "CL=F": "CL (Petrol)",
@@ -103,8 +110,10 @@ def analyze(df):
            "ma": float(last["ma"]), "events": [], "d": d}
     sig["dist_pct"] = (sig["close"] / sig["ma"] - 1) * 100
 
+    sig["ma_up"] = bool(last["ma_up"])
     if last["cross_up"]:
-        sig["events"].append("KIRILIM_YUKARI")
+        sig["events"].append("KIRILIM_AL")
+        sig["stop_kirilim"] = min(float(last["Low"]), sig["ma"]) * (1 - STOP_BUF_PCT / 100)
     if last["cross_dn"]:
         sig["events"].append("KIRILIM_ASAGI")
 
@@ -151,7 +160,10 @@ def r_sonuc(fiyat, t):
 def durum_oku():
     try:
         with open(DURUM, encoding="utf-8") as f:
-            return json.load(f)
+            s = json.load(f)
+        for k in [k for k in s["acik"] if "|" not in k]:   # eski biçim -> RETEST
+            s["acik"][k + "|RETEST"] = {"tip": "RETEST", **s["acik"].pop(k)}
+        return s
     except (FileNotFoundError, json.JSONDecodeError):
         return {"acik": {}, "kapali": []}
 
@@ -163,23 +175,27 @@ def durum_yaz(s):
 
 # ---------------- Mesajlar ----------------
 def al_mesaji(sym, s, t):
+    tip = t["tip"]
     risk = t["giris"] - t["stop0"]
     risk_pct = risk / t["giris"] * 100
-    risk_usd = KASA_USD * RISK_YUZDE / 100
+    risk_usd = KASA_USD * RISK_YUZDE[tip] / 100
     miktar = risk_usd / risk
     deger = miktar * t["giris"]
     kaldirac = deger / KASA_USD
     return (
-        f"🟢 *{ad(sym)} — RETEST AL* (200 MA)\n"
-        f"Kırılımdan {s['days_since_break']} gün sonra 200 MA test edildi, üstünde kapattı.\n\n"
+        BASLIK[tip].format(ad(sym)) + "\n"
+        + (f"Kırılımdan {s['days_since_break']} gün sonra 200 MA test edildi, üstünde kapattı.\n\n"
+           if tip == "RETEST" else
+           f"Günlük kapanış 200 MA'nın üstüne çıktı (MA {'yükselen' if s['ma_up'] else 'düşen → olası trend dönüşü'}).\n\n")
+        +
         f"*Giriş:* {fmt(t['giris'])}  _(günlük kapanış; fiyat bunun %1'den fazla üstündeyse kovalamak yerine geç)_\n"
         f"*Stop:* {fmt(t['stop0'])}  (−%{risk_pct:.1f})  → 1R = {fmt(risk)}\n"
         f"*TP1 ({TP1_R:g}R):* {fmt(t['tp1'])}  (+%{risk_pct * TP1_R:.1f}) → yarısını kapat, stopu girişe çek\n"
         f"*Kalan yarı:* günlük kapanış 200 MA altına inince kapat (MA şu an {fmt(s['ma'])})\n"
         f"Referans: 2R {fmt(t['giris'] + 2 * risk)} | 5R {fmt(t['giris'] + 5 * risk)}\n\n"
-        f"*Pozisyon* (kasa {KASA_USD:,.0f}$, risk %{RISK_YUZDE:g} = {risk_usd:,.0f}$):\n"
+        f"*Pozisyon* (kasa {KASA_USD:,.0f}$, risk %{RISK_YUZDE[tip]:g} = {risk_usd:,.0f}$):\n"
         f"Miktar {miktar:,.4f} | Değer {deger:,.0f}$ | Kaldıraç ~{max(kaldirac, 1):.1f}x\n\n"
-        f"_{BT_OZET}_"
+        f"_{BT_OZET[tip]}_"
     )
 
 
@@ -195,17 +211,17 @@ def islem_yonet(sym, t, d):
             r_kalan = r_sonuc(cikis, t)
             if t["tp1_alindi"]:
                 toplam = TP1_ORAN * TP1_R + (1 - TP1_ORAN) * r_kalan
-                msgs.append(f"⚪ *{ad(sym)}* kalan yarı başabaş stoptan çıktı ({fmt(cikis)}). "
+                msgs.append(f"⚪ *{ad(sym)}* ({t['tip'].lower()}) kalan yarı başabaş stoptan çıktı ({fmt(cikis)}). "
                             f"İşlem sonucu: *{toplam:+.2f}R*")
             else:
                 toplam = r_kalan
-                msgs.append(f"🔴 *{ad(sym)}* STOP oldu ({fmt(cikis)}). İşlem sonucu: *{toplam:+.2f}R*")
+                msgs.append(f"🔴 *{ad(sym)}* ({t['tip'].lower()}) STOP oldu ({fmt(cikis)}). İşlem sonucu: *{toplam:+.2f}R*")
             t["sonuc_R"] = round(toplam, 2); t["kapanis"] = str(tarih.date())
             return msgs, True
         if not t["tp1_alindi"] and row["High"] >= t["tp1"]:
             t["tp1_alindi"] = True
             t["stop"] = t["giris"]
-            msgs.append(f"🎯 *{ad(sym)}* TP1 ({TP1_R:g}R) geldi: {fmt(t['tp1'])}\n"
+            msgs.append(f"🎯 *{ad(sym)}* ({t['tip'].lower()}) TP1 ({TP1_R:g}R) geldi: {fmt(t['tp1'])}\n"
                         f"→ Pozisyonun yarısını kapat (+{TP1_ORAN * TP1_R:.1f}R kasaya girdi), "
                         f"stopu girişe çek: {fmt(t['giris'])}\n"
                         f"→ Kalan yarı 200 MA altı günlük kapanışa kadar tutulur.")
@@ -214,7 +230,7 @@ def islem_yonet(sym, t, d):
         if t["tp1_alindi"] and row["Close"] < row["ma"]:
             r_kalan = r_sonuc(float(row["Close"]), t)
             toplam = TP1_ORAN * TP1_R + (1 - TP1_ORAN) * r_kalan
-            msgs.append(f"🏁 *{ad(sym)}* günlük kapanış 200 MA altında ({fmt(row['Close'])}). "
+            msgs.append(f"🏁 *{ad(sym)}* ({t['tip'].lower()}) günlük kapanış 200 MA altında ({fmt(row['Close'])}). "
                         f"Kalan yarıyı KAPAT.\nKalan yarı {r_kalan:+.2f}R | İşlem toplamı: *{toplam:+.2f}R*")
             t["sonuc_R"] = round(toplam, 2); t["kapanis"] = str(tarih.date())
             return msgs, True
@@ -223,9 +239,6 @@ def islem_yonet(sym, t, d):
 
 
 def bilgi_mesaji(sym, s, e, acik):
-    if e == "KIRILIM_YUKARI":
-        return (f"📈 *{ad(sym)}* 200 MA'yı YUKARI kırdı. Kapanış {fmt(s['close'])}, MA {fmt(s['ma'])}.\n"
-                f"Plan: fiyat %{MIN_RUN_PCT:g}+ uzaklaşıp MA'ya geri gelirse retest girişi.")
     if e == "KIRILIM_ASAGI" and not acik:
         return f"📉 *{ad(sym)}* 200 MA'nın ALTINA indi. Kapanış {fmt(s['close'])}, MA {fmt(s['ma'])}."
     if e == "YAKLASIYOR" and not acik:
@@ -263,30 +276,37 @@ def main():
             d = s["d"]
             summary.append(f"{ad(sym)}: %{s['dist_pct']:+.1f}")
 
-            # 1) Açık işlem varsa yönet
-            t = durum["acik"].get(sym)
-            if t:
-                m, kapandi = islem_yonet(sym, t, d)
-                msgs += m
-                if kapandi:
-                    durum["kapali"].append({"varlik": sym, **t})
-                    del durum["acik"][sym]
-                    t = None
+            # 1) Açık işlemleri yönet (KIRILIM ve RETEST ayrı ayrı)
+            for tip in ("KIRILIM", "RETEST"):
+                key = f"{sym}|{tip}"
+                t = durum["acik"].get(key)
+                if t:
+                    m, kapandi = islem_yonet(sym, t, d)
+                    msgs += m
+                    if kapandi:
+                        durum["kapali"].append({"varlik": sym, **t})
+                        del durum["acik"][key]
+            acik_var = any(k.startswith(sym + "|") for k in durum["acik"])
 
-            # 2) Yeni sinyal
+            # 2) Yeni sinyaller
             for e in s["events"]:
-                if e == "RETEST_AL":
-                    if t:
-                        msgs.append(f"ℹ️ *{ad(sym)}* yeni retest sinyali var ama açık işlem zaten var, atlandı.")
+                if e in ("KIRILIM_AL", "RETEST_AL"):
+                    tip = e.split("_")[0]
+                    key = f"{sym}|{tip}"
+                    if key in durum["acik"]:
+                        msgs.append(f"ℹ️ *{ad(sym)}* yeni {tip.lower()} sinyali var ama aynı türde açık işlem zaten var, atlandı.")
                         continue
-                    giris = s["close"]; stop = s["stop"]
-                    t = {"tarih": str(s["date"]), "giris": giris, "stop0": stop, "stop": stop,
+                    giris = s["close"]
+                    stop = s["stop_kirilim"] if tip == "KIRILIM" else s["stop"]
+                    if stop >= giris:
+                        continue
+                    t = {"tip": tip, "tarih": str(s["date"]), "giris": giris, "stop0": stop, "stop": stop,
                          "tp1": giris + TP1_R * (giris - stop), "tp1_alindi": False,
                          "son_kontrol": str(s["date"])}
-                    durum["acik"][sym] = t
+                    durum["acik"][key] = t
                     msgs.append(al_mesaji(sym, s, t))
                 else:
-                    m = bilgi_mesaji(sym, s, e, bool(t))
+                    m = bilgi_mesaji(sym, s, e, acik_var)
                     if m:
                         msgs.append(m)
         except Exception as e:  # noqa
@@ -301,7 +321,7 @@ def main():
             text += "\n\n_200 MA'ya uzaklık:_\n" + "\n".join(summary)
             if durum["acik"]:
                 text += "\n\n_Açık işlemler:_\n" + "\n".join(
-                    f"{ad(k)}: giriş {fmt(v['giris'])}, stop {fmt(v['stop'])}"
+                    f"{ad(k.split('|')[0])} ({v['tip'].lower()}): giriş {fmt(v['giris'])}, stop {fmt(v['stop'])}"
                     + (" (TP1 alındı)" if v["tp1_alindi"] else f", TP1 {fmt(v['tp1'])}")
                     for k, v in durum["acik"].items())
         if errors:
