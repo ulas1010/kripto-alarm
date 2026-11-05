@@ -71,23 +71,12 @@
   "BTCUSDT|15m|sfp|long|2026-11-05T06:15",
   "ETHUSDT|15m|sfp|long|2026-11-05T09:30",
   "BTCUSDT|15m|mitigation|short|2026-11-05T10:45",
-  "ETHUSDT|1h|mitigation|short|2026-11-05T12:00"
+  "ETHUSDT|1h|mitigation|short|2026-11-05T12:00",
+  "BTCUSDT|15m|retest|short|2026-11-05T15:30"
  ],
  "son_kalp_atisi": "2026-11-05",
  "son_ozet": "2026-11-05",
  "izleme": [
-  {
-   "sembol": "BTCUSDT",
-   "orta": 80500.0,
-   "olay": "icinde",
-   "zaman": "2026-11-04T15:31:50.899437+00:00"
-  },
-  {
-   "sembol": "ETHUSDT",
-   "orta": 2465.0,
-   "olay": "giris",
-   "zaman": "2026-11-04T15:31:50.899437+00:00"
-  },
   {
    "sembol": "XAUUSDT",
    "orta": 4085.7287499999998,
