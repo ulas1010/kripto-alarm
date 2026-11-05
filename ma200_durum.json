@@ -1,15 +1,5 @@
 {
  "acik": {
-  "NVDA|KIRILIM": {
-   "tip": "KIRILIM",
-   "tarih": "2026-11-03",
-   "giris": 206.69000244140625,
-   "stop0": 202.5162811752319,
-   "stop": 202.5162811752319,
-   "tp1": 219.21116623992927,
-   "tp1_alindi": false,
-   "son_kontrol": "2026-11-03"
-  },
   "MSTR|KIRILIM": {
    "tip": "KIRILIM",
    "tarih": "2026-11-03",
@@ -18,8 +8,22 @@
    "stop": 129.7790963745117,
    "tp1": 153.18273040771487,
    "tp1_alindi": false,
-   "son_kontrol": "2026-11-03"
+   "son_kontrol": "2026-11-04"
   }
  },
- "kapali": []
+ "kapali": [
+  {
+   "varlik": "NVDA",
+   "tip": "KIRILIM",
+   "tarih": "2026-11-03",
+   "giris": 206.69000244140625,
+   "stop0": 202.5162811752319,
+   "stop": 202.5162811752319,
+   "tp1": 219.21116623992927,
+   "tp1_alindi": false,
+   "son_kontrol": "2026-11-03",
+   "sonuc_R": -1.0,
+   "kapanis": "2026-11-04"
+  }
+ ]
 }
