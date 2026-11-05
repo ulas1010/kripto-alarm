@@ -79,12 +79,6 @@
  "son_ozet": "2026-11-05",
  "izleme": [
   {
-   "sembol": "BTCUSDT",
-   "orta": 80500.0,
-   "olay": "kayip",
-   "zaman": "2026-11-04T20:02:02.002479+00:00"
-  },
-  {
    "sembol": "ETHUSDT",
    "orta": 2385.0,
    "olay": "kazanim",
