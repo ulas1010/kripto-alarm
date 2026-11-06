@@ -77,7 +77,14 @@
  ],
  "son_kalp_atisi": "2026-11-05",
  "son_ozet": "2026-11-06",
- "izleme": [],
+ "izleme": [
+  {
+   "sembol": "ETHUSDT",
+   "orta": 2279.010875,
+   "olay": "giris",
+   "zaman": "2026-11-06T22:17:07.221151+00:00"
+  }
+ ],
  "kagit": {
   "sayac": 12,
   "acik": [
