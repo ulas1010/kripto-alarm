@@ -79,12 +79,6 @@
  "son_ozet": "2026-11-05",
  "izleme": [
   {
-   "sembol": "XAUUSDT",
-   "orta": 4188.0375,
-   "olay": "giris",
-   "zaman": "2026-11-05T04:01:58.074245+00:00"
-  },
-  {
    "sembol": "ETHUSDT",
    "orta": 2385.0,
    "olay": "kayip",
