@@ -77,7 +77,14 @@
  ],
  "son_kalp_atisi": "2026-11-05",
  "son_ozet": "2026-11-08",
- "izleme": [],
+ "izleme": [
+  {
+   "sembol": "XAUUSDT",
+   "orta": 4085.7287499999998,
+   "olay": "giris",
+   "zaman": "2026-11-08T19:31:55.930373+00:00"
+  }
+ ],
  "kagit": {
   "sayac": 12,
   "acik": [
