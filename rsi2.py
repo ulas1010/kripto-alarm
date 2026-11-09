@@ -23,6 +23,8 @@ STOP_ATR = 3.0
 RISK_YUZDE = 1.0        # kasanın yüzdesi (giriş ile stop arası)
 POZ_MAX_YUZDE = 20.0    # tek pozisyon kasanın en fazla bu yüzdesi
 MALIYET = 0.001         # sonuç hesabında her yön için (komisyon + kayma)
+# RSI-2 sadece backtest'te test edilen varlıklarda çalışır (kriptoda ETH hariç test edilmedi)
+VARLIKLAR = {"NVDA", "GOOGL", "META", "AMD", "AVGO", "MRVL", "MU", "MSTR", "ARM", "SPY", "GC=F", "SI=F", "ETH-USD"}
 BT_OZET = ("10 yıl backtest (13 varlık, 466 işlem): kazanma %68, işlem başı ort. +%0,8, "
            "medyan 4 gün. Kazançlar küçük ve sık; ara sıra stop büyük olabilir.")
 
@@ -57,7 +59,7 @@ def _f(x, fmt):
     return fmt(x) if x is not None else "-"
 
 
-def al_mesaji(ad, fmt, kasa, d, t):
+def al_mesaji(ad, fmt, kasa, d, t, kripto=False):
     son = d.iloc[-1]
     c = float(son["Close"]); mesafe = t["atr3"]
     risk_usd = kasa * RISK_YUZDE / 100
@@ -65,7 +67,7 @@ def al_mesaji(ad, fmt, kasa, d, t):
     return (
         f"⚡ *{ad} — KISA VADE AL* (RSI-2)\n"
         f"Trend yukarı (200 MA üstü) ama son günlerde sert geri çekildi: RSI(2) = {son['rsi2']:.1f}.\n\n"
-        f"*Giriş:* bugün AÇILIŞTA al (son kapanış {fmt(c)})\n"
+        f"*Giriş:* {'ŞİMDİ' if kripto else 'bugün AÇILIŞTA'} al (son kapanış {fmt(c)})\n"
         f"*Stop:* giriş fiyatının {fmt(mesafe)} altı (3×ATR, ~%{mesafe / c * 100:.1f}) → kapanışa göre ~{fmt(c - mesafe)}\n"
         f"*Çıkış:* bot, günlük kapanış 5 günlük ortalamanın üstüne çıkınca \"SAT\" mesajı atar "
         f"(şu an ort. {fmt(float(son['sma5']))}). Genelde 2–6 gün sürer.\n\n"
@@ -76,7 +78,7 @@ def al_mesaji(ad, fmt, kasa, d, t):
     )
 
 
-def yonet(ad, fmt, t, d):
+def yonet(ad, fmt, t, d, kripto=False):
     """RSI-2 işlemini son kontrolden sonraki mumlarla günceller -> (mesajlar, kapandı_mı)."""
     msgs = []
     for tarih, row in d[d.index > pd.Timestamp(t["son_kontrol"])].iterrows():
@@ -101,7 +103,7 @@ def yonet(ad, fmt, t, d):
             t["durum"] = "cikis_bekliyor"
             tahmini = (float(row["Close"]) / t["giris"] - 1) * 100
             msgs.append(f"🔵 *{ad}* (kısa vade) SAT: kapanış 5 günlük ortalamanın üstüne çıktı.\n"
-                        f"→ Bugün AÇILIŞTA sat. Giriş {fmt(t['giris'])}, son kapanış {fmt(float(row['Close']))} "
+                        f"→ {'ŞİMDİ' if kripto else 'Bugün AÇILIŞTA'} sat. Giriş {fmt(t['giris'])}, son kapanış {fmt(float(row['Close']))} "
                         f"(tahmini sonuç %{tahmini:+.1f})")
         t["son_kontrol"] = gun
     return msgs, False

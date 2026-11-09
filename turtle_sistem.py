@@ -47,7 +47,7 @@ def yeni_islem(d):
             "son_kontrol": str(d.index[-1].date())}
 
 
-def al_mesaji(ad, fmt, kasa, d, t):
+def al_mesaji(ad, fmt, kasa, d, t, kripto=False):
     s = d.iloc[-1]
     c = float(s["Close"]); m = t["mesafe"]
     risk_usd = kasa * RISK_YUZDE / 100
@@ -55,7 +55,9 @@ def al_mesaji(ad, fmt, kasa, d, t):
     return (
         f"🐢 *{ad} — TURTLE AL*\n"
         f"Kapanış {fmt(c)}, son {GIRIS_N} günün zirvesini ({fmt(float(s['t_hh']))}) kırdı; 200 MA üstünde.\n\n"
-        f"*Giriş:* bugün AÇILIŞTA al\n"
+        + ("*Giriş:* ŞİMDİ al (kripto günlük mumu 03:00'te açıldı; fiyat çok kaçtıysa miktarı küçült)\n"
+           if kripto else "*Giriş:* bugün AÇILIŞTA al\n")
+        +
         f"*Stop:* giriş fiyatının {fmt(m)} altı (2×ATR, ~%{m / c * 100:.1f}) → kapanışa göre ~{fmt(c - m)}\n"
         f"*Çıkış:* günlük kapanış son {CIKIS_N} günün dibinin altına inerse bot \"SAT\" mesajı atar "
         f"(şu an dip {fmt(float(s['t_ll']))}, her gün yukarı kayar)\n\n"
@@ -65,7 +67,7 @@ def al_mesaji(ad, fmt, kasa, d, t):
     )
 
 
-def yonet(ad, fmt, t, d):
+def yonet(ad, fmt, t, d, kripto=False):
     """Turtle işlemini son kontrolden sonraki mumlarla günceller -> (mesajlar, kapandı_mı)."""
     msgs = []
     for tarih, row in d[d.index > pd.Timestamp(t["son_kontrol"])].iterrows():
@@ -88,7 +90,7 @@ def yonet(ad, fmt, t, d):
             t["durum"] = "cikis_bekliyor"
             tahmini = (float(row["Close"]) / t["giris"] - 1) * 100
             msgs.append(f"🔵 *{ad}* (turtle) SAT: kapanış son {CIKIS_N} günün dibinin altına indi.\n"
-                        f"→ Bugün AÇILIŞTA sat. Giriş {fmt(t['giris'])}, son kapanış {fmt(float(row['Close']))} "
+                        f"→ {'ŞİMDİ' if kripto else 'Bugün AÇILIŞTA'} sat. Giriş {fmt(t['giris'])}, son kapanış {fmt(float(row['Close']))} "
                         f"(tahmini sonuç %{tahmini:+.1f})")
         t["son_kontrol"] = gun
     return msgs, False

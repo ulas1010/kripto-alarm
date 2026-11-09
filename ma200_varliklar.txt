@@ -18,5 +18,10 @@ SPY
 GC=F        # XAU (Altın)
 SI=F        # XAG (Gümüş)
 
-# Kripto (backtest'te kripto zayıf; sadece ETH bırakıldı)
+# Kripto — Turtle kriptoda çok iyi çıktı (backtest/turtle_kripto_testi_sonuc.txt).
+# En büyük 5 coin: portföy yıllık %34, en kötü düşüş −%20. RSI-2 kriptoda sadece ETH'de çalışır.
+BTC-USD
 ETH-USD
+SOL-USD
+BNB-USD
+XRP-USD

@@ -320,21 +320,23 @@ def main():
 
             # 3) Turtle ve Kısa vade (RSI-2): önce açık işlemi yönet, sonra yeni sinyal
             son_gun = str(d.index[-1].date())
+            kripto = sym.endswith("-USD")
             for tip, mod in SISTEMLER:
                 key = f"{sym}|{tip}"
                 bugun_kapandi = False
                 t = durum["acik"].get(key)
                 if t:
-                    m, kapandi = mod.yonet(ad(sym), fmt, t, d)
+                    m, kapandi = mod.yonet(ad(sym), fmt, t, d, kripto)
                     msgs += m
                     if kapandi:
                         durum["kapali"].append({"varlik": sym, **t})
                         del durum["acik"][key]
                         bugun_kapandi = t["kapanis"] == son_gun
-                if key not in durum["acik"] and not bugun_kapandi and mod.sinyal_var(d):
+                izinli = getattr(mod, "VARLIKLAR", None) is None or sym in mod.VARLIKLAR
+                if izinli and key not in durum["acik"] and not bugun_kapandi and mod.sinyal_var(d):
                     t = mod.yeni_islem(d)
                     durum["acik"][key] = t
-                    msgs.append(mod.al_mesaji(ad(sym), fmt, KASA_USD, d, t))
+                    msgs.append(mod.al_mesaji(ad(sym), fmt, KASA_USD, d, t, kripto))
         except Exception as e:  # noqa
             errors.append(f"{sym} ({e.__class__.__name__}: {e})")
 
