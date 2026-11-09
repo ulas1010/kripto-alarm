@@ -24,6 +24,12 @@ import pandas as pd
 import requests
 
 import rsi2 as R2
+import turtle_sistem as TS
+
+# 09.11.2026: ana sistem Turtle'a geçti. 200 MA'dan yeni giriş/bilgi mesajı gelmez;
+# zaten açık olan 200 MA işlemleri (KIRILIM/RETEST) kapanana kadar takip edilir.
+MA200_YENI_GIRIS = False
+SISTEMLER = [("TURTLE", TS), ("RSI2", R2)]
 
 KOK = os.path.dirname(os.path.abspath(__file__))
 DURUM = os.path.join(KOK, "ma200_durum.json")
@@ -275,7 +281,7 @@ def main():
             if s is None:
                 errors.append(sym)
                 continue
-            d = R2.gostergeler(s["d"])
+            d = TS.gostergeler(R2.gostergeler(s["d"]))
             summary.append(f"{ad(sym)}: %{s['dist_pct']:+.1f}")
 
             # 1) Açık işlemleri yönet (KIRILIM ve RETEST ayrı ayrı)
@@ -290,8 +296,8 @@ def main():
                         del durum["acik"][key]
             acik_var = any(f"{sym}|{x}" in durum["acik"] for x in ("KIRILIM", "RETEST"))
 
-            # 2) Yeni sinyaller
-            for e in s["events"]:
+            # 2) Yeni sinyaller (200 MA)
+            for e in (s["events"] if MA200_YENI_GIRIS else []):
                 if e in ("KIRILIM_AL", "RETEST_AL"):
                     tip = e.split("_")[0]
                     key = f"{sym}|{tip}"
@@ -312,22 +318,23 @@ def main():
                     if m:
                         msgs.append(m)
 
-            # 3) Kısa vade (RSI-2): önce açık işlemi yönet, sonra yeni sinyal
-            key = f"{sym}|RSI2"
+            # 3) Turtle ve Kısa vade (RSI-2): önce açık işlemi yönet, sonra yeni sinyal
             son_gun = str(d.index[-1].date())
-            bugun_kapandi = False
-            t = durum["acik"].get(key)
-            if t:
-                m, kapandi = R2.yonet(ad(sym), fmt, t, d)
-                msgs += m
-                if kapandi:
-                    durum["kapali"].append({"varlik": sym, **t})
-                    del durum["acik"][key]
-                    bugun_kapandi = t["kapanis"] == son_gun
-            if key not in durum["acik"] and not bugun_kapandi and R2.sinyal_var(d):
-                t = R2.yeni_islem(d)
-                durum["acik"][key] = t
-                msgs.append(R2.al_mesaji(ad(sym), fmt, KASA_USD, d, t))
+            for tip, mod in SISTEMLER:
+                key = f"{sym}|{tip}"
+                bugun_kapandi = False
+                t = durum["acik"].get(key)
+                if t:
+                    m, kapandi = mod.yonet(ad(sym), fmt, t, d)
+                    msgs += m
+                    if kapandi:
+                        durum["kapali"].append({"varlik": sym, **t})
+                        del durum["acik"][key]
+                        bugun_kapandi = t["kapanis"] == son_gun
+                if key not in durum["acik"] and not bugun_kapandi and mod.sinyal_var(d):
+                    t = mod.yeni_islem(d)
+                    durum["acik"][key] = t
+                    msgs.append(mod.al_mesaji(ad(sym), fmt, KASA_USD, d, t))
         except Exception as e:  # noqa
             errors.append(f"{sym} ({e.__class__.__name__}: {e})")
 
@@ -337,10 +344,10 @@ def main():
     if msgs or always:
         text = "\n\n".join(msgs) if msgs else "Bugün sinyal yok."
         if always:
-            text += "\n\n_200 MA'ya uzaklık:_\n" + "\n".join(summary)
+            text += "\n\n_200 MA'ya uzaklık (trend filtresi):_\n" + "\n".join(summary)
             if durum["acik"]:
                 text += "\n\n_Açık işlemler:_\n" + "\n".join(
-                    R2.ozet_satiri(ad(k.split('|')[0]), fmt, v) if v["tip"] == "RSI2" else
+                    dict(SISTEMLER)[v["tip"]].ozet_satiri(ad(k.split('|')[0]), fmt, v) if v["tip"] in dict(SISTEMLER) else
                     f"{ad(k.split('|')[0])} ({v['tip'].lower()}): giriş {fmt(v['giris'])}, stop {fmt(v['stop'])}"
                     + (" (TP1 alındı)" if v["tp1_alindi"] else f", TP1 {fmt(v['tp1'])}")
                     for k, v in durum["acik"].items())

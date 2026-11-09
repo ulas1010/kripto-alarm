@@ -5,6 +5,12 @@
 > Bot sadece fiyat güçlü bir günlük/4 saatlik bölgeye geldiğinde haber veriyor, onay yapısını sen arıyorsun.
 > Mod `ayarlar.py` → `CALISMA_MODU` ile değiştirilebilir. Backtest sonuçları: `backtest/sonuc.md`.
 
+> 🐢 **ANA SİSTEM: TURTLE (09.11.2026)** — `turtle_sistem.py`: günlük kapanış son 20 günün zirvesini kırar VE 200 MA üstündeyse
+> ertesi gün açılışta al; stop giriş − 2×ATR(20); kapanış son 10 günün dibinin altına inerse ertesi açılışta sat (bot "SAT" mesajı atar).
+> Risk %1, pozisyon en fazla kasanın %20'si. Backtest (13 varlık, 10 yıl, ertesi açılış, maliyetli): 513 işlem, kazanma %39, işlem başı +%4,7,
+> medyan 16 gün; portföy yıllık %25, en kötü düşüş −%22, 10 yılın 9'u kârlı. 200 MA sisteminden yeni giriş gelmez
+> (`ma200.py` → `MA200_YENI_GIRIS = False`); açık 200 MA işlemleri kapanana kadar takip edilir.
+
 > **Ek: 200 MA Alarmı (04.11.2026)** — `ma200.py`, her sabah 09:07'de aynı Telegram botundan bildirim atar. İki giriş türü:
 > 📈 **KIRILIM AL** (ana giriş, %0,5 risk): günlük kapanış 200 MA'nın üstüne çıkar. Backtest: 308 işlem, kazanma %35, ort. +1,3R, en kötü düşüş −23R.
 > 🟢 **RETEST AL** (kaçırdıysan ya da ekleme, %1 risk): fiyat %5+ uzaklaşıp MA'ya geri gelir, yeşil mumla üstünde kapatır. Backtest: 72 işlem, kazanma %49, ort. +1,9R, en kötü düşüş −9R.
