@@ -1,0 +1,26 @@
+name: Kisa Vade Backtest
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install yfinance pandas numpy requests
+      - run: python backtest/kisa_vade_testi.py | grep -v "^tamam" | tee backtest/kisa_vade_sonuc.txt
+      - name: Sonucu kaydet
+        run: |
+          git config user.name "kripto-alarm-bot"
+          git config user.email "kripto-alarm-bot@users.noreply.github.com"
+          git add backtest/kisa_vade_sonuc.txt
+          git commit -m "kısa vade backtest sonucu" || exit 0
+          git push || (git pull --rebase && git push)
