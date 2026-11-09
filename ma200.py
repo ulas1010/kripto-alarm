@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 import pandas as pd
 import requests
 
+import rsi2 as R2
+
 KOK = os.path.dirname(os.path.abspath(__file__))
 DURUM = os.path.join(KOK, "ma200_durum.json")
 
@@ -273,7 +275,7 @@ def main():
             if s is None:
                 errors.append(sym)
                 continue
-            d = s["d"]
+            d = R2.gostergeler(s["d"])
             summary.append(f"{ad(sym)}: %{s['dist_pct']:+.1f}")
 
             # 1) Açık işlemleri yönet (KIRILIM ve RETEST ayrı ayrı)
@@ -286,7 +288,7 @@ def main():
                     if kapandi:
                         durum["kapali"].append({"varlik": sym, **t})
                         del durum["acik"][key]
-            acik_var = any(k.startswith(sym + "|") for k in durum["acik"])
+            acik_var = any(f"{sym}|{x}" in durum["acik"] for x in ("KIRILIM", "RETEST"))
 
             # 2) Yeni sinyaller
             for e in s["events"]:
@@ -309,6 +311,23 @@ def main():
                     m = bilgi_mesaji(sym, s, e, acik_var)
                     if m:
                         msgs.append(m)
+
+            # 3) Kısa vade (RSI-2): önce açık işlemi yönet, sonra yeni sinyal
+            key = f"{sym}|RSI2"
+            son_gun = str(d.index[-1].date())
+            bugun_kapandi = False
+            t = durum["acik"].get(key)
+            if t:
+                m, kapandi = R2.yonet(ad(sym), fmt, t, d)
+                msgs += m
+                if kapandi:
+                    durum["kapali"].append({"varlik": sym, **t})
+                    del durum["acik"][key]
+                    bugun_kapandi = t["kapanis"] == son_gun
+            if key not in durum["acik"] and not bugun_kapandi and R2.sinyal_var(d):
+                t = R2.yeni_islem(d)
+                durum["acik"][key] = t
+                msgs.append(R2.al_mesaji(ad(sym), fmt, KASA_USD, d, t))
         except Exception as e:  # noqa
             errors.append(f"{sym} ({e.__class__.__name__}: {e})")
 
@@ -316,11 +335,12 @@ def main():
 
     always = os.environ.get("DAILY_SUMMARY", "0") == "1"
     if msgs or always:
-        text = "\n\n".join(msgs) if msgs else "Bugün 200 MA sinyali yok."
+        text = "\n\n".join(msgs) if msgs else "Bugün sinyal yok."
         if always:
             text += "\n\n_200 MA'ya uzaklık:_\n" + "\n".join(summary)
             if durum["acik"]:
                 text += "\n\n_Açık işlemler:_\n" + "\n".join(
+                    R2.ozet_satiri(ad(k.split('|')[0]), fmt, v) if v["tip"] == "RSI2" else
                     f"{ad(k.split('|')[0])} ({v['tip'].lower()}): giriş {fmt(v['giris'])}, stop {fmt(v['stop'])}"
                     + (" (TP1 alındı)" if v["tp1_alindi"] else f", TP1 {fmt(v['tp1'])}")
                     for k, v in durum["acik"].items())

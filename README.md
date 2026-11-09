@@ -11,6 +11,10 @@
 > **Ortak çıkış:** Stop = min(mum dibi, MA) − %1 · TP1 3R'de yarısını kapat, stopu girişe çek · kalan yarı günlük kapanış 200 MA altına inince kapanır.
 > Bot açık işlemleri `ma200_durum.json`'da takip eder; TP1, stop ve çıkışta ayrıca mesaj atar. Pozisyon büyüklüğü: `ma200.py` → `KASA_USD`, `RISK_YUZDE`.
 > Varlıklar: `ma200_varliklar.txt`. Karşılaştırma: `backtest/ma200_kirilim_testi.py`. Test: Actions → **200 MA Retest Alarmi** → Run workflow.
+> ⚡ **KISA VADE AL (RSI-2, 09.11.2026)** — `rsi2.py`: trend yukarıyken (200 MA üstü) RSI(2) < 5 olunca ertesi gün açılışta al,
+> stop giriş − 3×ATR(14), kapanış 5 günlük ortalamanın üstüne çıkınca ertesi açılışta sat (bot "SAT" mesajı atar).
+> Backtest (13 varlık, 10 yıl, ertesi açılış, maliyetli): 466 işlem, kazanma %68, işlem başı +%0,8, medyan 4 gün. Risk %1, pozisyon en fazla kasanın %20'si.
+> Sistem karşılaştırması (RSI-2, Turtle, 200 MA): `backtest/kisa_vade_testi.py`, `backtest/ertesi_acilis_testi.py` ve `*_sonuc.txt` dosyaları.
 
 
 Efloud'un **Confirmation (Onay) Mekanizmaları** videosundaki yapıları BTC ve ETH'de otomatik arar.
