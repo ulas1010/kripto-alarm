@@ -2,6 +2,10 @@ name: Kisa Vade Backtest
 
 on:
   workflow_dispatch:
+    inputs:
+      betik:
+        description: "Çalıştırılacak test (backtest/ altındaki dosya adı, .py olmadan)"
+        default: "turtle_kripto_testi"
 
 permissions:
   contents: write
@@ -16,11 +20,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install yfinance pandas numpy requests
-      - run: python backtest/ertesi_acilis_testi.py | tee backtest/ertesi_acilis_sonuc.txt
+      - run: python backtest/${{ github.event.inputs.betik }}.py | tee backtest/${{ github.event.inputs.betik }}_sonuc.txt
       - name: Sonucu kaydet
         run: |
           git config user.name "kripto-alarm-bot"
           git config user.email "kripto-alarm-bot@users.noreply.github.com"
-          git add backtest/ertesi_acilis_sonuc.txt
-          git commit -m "kısa vade backtest sonucu" || exit 0
+          git add backtest/*_sonuc.txt
+          git commit -m "backtest sonucu: ${{ github.event.inputs.betik }}" || exit 0
           git push || (git pull --rebase && git push)
