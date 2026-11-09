@@ -157,7 +157,7 @@ def portfoy(islemler, fiyatlar, bas, risk_vars=0.01, cap=0.20):
         kalan = []
         for p in acik:
             for f, k, fiyat in p["legs"]:
-                if p["tarih"][k] == gun and (f, k) not in p["kapali"]:
+                if p["tarih"][k] <= gun and (f, k) not in p["kapali"]:   # aynı gün giriş+stop olanlar ertesi döngüde kapanır
                     q = p["qty"] * f
                     nakit += q * fiyat * (1 - MALIYET); p["kapali"].add((f, k)); p["kalan"] -= q
             if p["kalan"] > 1e-12:
