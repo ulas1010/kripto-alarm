@@ -1,0 +1,31 @@
+=== İŞLEM BAZINDA ===
+                                    işlem  yılda  kazanma%  ort %  medyan gün  ort kazanç %  ort kayıp %  kâr faktörü  ort R  en kötü %
+RSI-2 <5, 3ATR (kapanış)            465.0   46.5      69.0   0.88         3.0          3.01        -3.87         1.74   0.09      -21.1
+RSI-2 <5, 3ATR (ertesi açılış)      466.0   46.6      68.0   0.79         4.0          3.00        -3.94         1.63   0.07      -22.9
+RSI-2 <10, 3ATR (ertesi açılış)     936.0   93.6      65.0   0.45         4.0          3.07        -4.52         1.29   0.04      -32.1
+Turtle 20/10+200MA (kapanış)        506.0   50.6      40.0   4.61        15.0         19.21        -4.94         2.54   0.62      -16.9
+Turtle 20/10+200MA (ertesi açılış)  513.0   51.3      39.0   4.65        16.0         19.74        -5.00         2.52   0.63      -35.1
+200 MA bot (kapanış)                383.0   38.3      38.0   8.50        12.0         30.39        -4.70         3.90   1.55      -19.6
+200 MA bot (ertesi açılış)          347.0   34.7      37.0   9.44        13.0         34.01        -4.74         4.14   1.46      -24.2
+
+=== DÖNEMLER (işlem başı ort %) ===
+RSI-2 <5, 3ATR (kapanış)               ilk 5 yıl +0.77% | son 5 yıl +0.99%
+RSI-2 <5, 3ATR (ertesi açılış)         ilk 5 yıl +0.69% | son 5 yıl +0.89%
+RSI-2 <10, 3ATR (ertesi açılış)        ilk 5 yıl +0.47% | son 5 yıl +0.44%
+Turtle 20/10+200MA (kapanış)           ilk 5 yıl +4.26% | son 5 yıl +4.97%
+Turtle 20/10+200MA (ertesi açılış)     ilk 5 yıl +4.48% | son 5 yıl +4.82%
+200 MA bot (kapanış)                   ilk 5 yıl +8.32% | son 5 yıl +8.67%
+200 MA bot (ertesi açılış)             ilk 5 yıl +8.95% | son 5 yıl +9.93%
+
+=== PORTFÖY (spot, işlem başı risk %1; 200 MA %0,5/%1) ===
+                                   yıllık getiri % max düşüş % getiri/düşüş ort. maruziyet % işlem kötü yıl % kazançlı yıl
+RSI-2 <5, 3ATR (kapanış)                       3.8        -8.3         0.46                7   465       -6.4         8/10
+RSI-2 <5, 3ATR (ertesi açılış)                 7.7       -26.5         0.29               50   436      -10.6         8/10
+RSI-2 <10, 3ATR (ertesi açılış)                9.7       -36.3         0.27               59   828      -13.6         7/10
+Turtle 20/10+200MA (kapanış)                  24.4       -23.2         1.05               60   421      -11.7         9/10
+Turtle 20/10+200MA (ertesi açılış)            27.0       -31.3         0.86               73   341      -18.7         9/10
+200 MA bot (kapanış)                          24.3       -29.9         0.81               74   344      -25.6         8/10
+200 MA bot (ertesi açılış)                    25.2       -44.6         0.56               93   184      -32.7         8/10
+RSI-2 <5 açılış, risk %2, tek pozisyon max %25: {'yıllık getiri %': np.float64(9.0), 'max düşüş %': np.float64(-27.7), 'getiri/düşüş': np.float64(0.32), 'ort. maruziyet %': 59, 'işlem': 373, 'kötü yıl %': np.float64(-13.4), 'kazançlı yıl': '8/10'}
+RSI-2 <5 açılış, risk %3, tek pozisyon max %33: {'yıllık getiri %': np.float64(8.9), 'max düşüş %': np.float64(-29.9), 'getiri/düşüş': np.float64(0.3), 'ort. maruziyet %': 56, 'işlem': 362, 'kötü yıl %': np.float64(-11.8), 'kazançlı yıl': '8/10'}
+200 MA bot açılış + RSI-2 <5 açılış (aynı kasa): {'yıllık getiri %': np.float64(24.5), 'max düşüş %': np.float64(-40.3), 'getiri/düşüş': np.float64(0.61), 'ort. maruziyet %': 94, 'işlem': 276, 'kötü yıl %': np.float64(-29.0), 'kazançlı yıl': '8/10'}
