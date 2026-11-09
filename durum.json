@@ -82,22 +82,16 @@
  "son_ozet": "2026-11-09",
  "izleme": [
   {
-   "sembol": "ETHUSDT",
-   "orta": 2140.0,
-   "olay": "giris",
-   "zaman": "2026-11-08T22:01:50.758224+00:00"
-  },
-  {
-   "sembol": "XAUUSDT",
-   "orta": 4043.84875,
-   "olay": "giris",
-   "zaman": "2026-11-08T22:01:50.758224+00:00"
-  },
-  {
    "sembol": "XAUUSDT",
    "orta": 4166.785,
    "olay": "giris",
    "zaman": "2026-11-09T01:16:54.638569+00:00"
+  },
+  {
+   "sembol": "ETHUSDT",
+   "orta": 2140.0,
+   "olay": "icinde",
+   "zaman": "2026-11-09T22:01:54.144002+00:00"
   }
  ],
  "kagit": {
