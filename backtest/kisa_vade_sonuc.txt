@@ -1,0 +1,48 @@
+
+=== İŞLEM BAZINDA (13 varlık, maliyet dahil) ===
+                                   işlem  yılda  kazanma%  ort %  medyan gün  ort kazanç %  ort kayıp %  kâr faktörü  ort R  en kötü %
+RSI-2 <10, stopsuz                 918.0   91.8      69.0   0.78         3.0          2.88        -3.81         1.65   0.08      -32.1
+RSI-2 <10, 3ATR stop               940.0   94.0      69.0   0.57         3.0          2.96        -4.62         1.39   0.06      -32.1
+RSI-2 <5, 3ATR stop                465.0   46.5      69.0   0.88         3.0          3.01        -3.87         1.74   0.09      -21.1
+RSI-2 <10, 3ATR, 200MA filtresiz  1581.0  158.1      67.0   0.51         3.0          3.24        -5.03         1.30   0.04      -32.1
+Turtle 20/10                       582.0   58.2      40.0   4.45        16.0         19.00        -5.19         2.43   0.59      -17.0
+Turtle 20/10 + 200MA               506.0   50.6      40.0   4.61        15.0         19.21        -4.94         2.54   0.62      -16.9
+Turtle 55/20 + 200MA               300.0   30.0      39.0   7.70        26.0         27.95        -5.25         3.40   1.19      -13.3
+200 MA (bot)                       383.0   38.3      38.0   8.50        12.0         30.39        -4.70         3.90   1.55      -19.6
+
+=== İŞLEM BAZINDA (50 varlık - sağlamlık kontrolü) ===
+                                   işlem  yılda  kazanma%  ort %  medyan gün  ort kazanç %  ort kayıp %  kâr faktörü  ort R  en kötü %
+RSI-2 <10, stopsuz                2838.0  283.8      66.0   0.85         3.0          3.76        -4.80         1.52   0.09      -54.3
+RSI-2 <10, 3ATR stop              2908.0  290.8      66.0   0.57         3.0          3.79        -5.72         1.30   0.03      -49.9
+RSI-2 <5, 3ATR stop               1450.0  145.0      67.0   1.05         3.0          4.18        -5.37         1.60   0.06      -42.7
+RSI-2 <10, 3ATR, 200MA filtresiz  6196.0  619.6      65.0   0.44         3.0          4.03        -6.28         1.20   0.02      -55.4
+Turtle 20/10                      2051.0  205.1      38.0   7.90        16.0         31.57        -6.90         2.86   0.83      -30.9
+Turtle 20/10 + 200MA              1614.0  161.4      38.0   6.85        15.0         29.07        -6.54         2.68   0.82      -30.9
+Turtle 55/20 + 200MA              1006.0  100.6      33.0  12.89        22.0         53.42        -7.17         3.69   1.47      -50.0
+200 MA (bot)                      1569.0  156.9      30.0  11.68        10.0         55.54        -6.68         3.48   1.79      -36.4
+
+=== DÖNEM KARŞILAŞTIRMASI (13 varlık, işlem başı ort %) ===
+RSI-2 <10, stopsuz                  ilk 5 yıl: +0.70% (459 işlem) | son 5 yıl: +0.86% (459 işlem)
+RSI-2 <10, 3ATR stop                ilk 5 yıl: +0.62% (471 işlem) | son 5 yıl: +0.52% (469 işlem)
+RSI-2 <5, 3ATR stop                 ilk 5 yıl: +0.77% (227 işlem) | son 5 yıl: +0.99% (238 işlem)
+RSI-2 <10, 3ATR, 200MA filtresiz    ilk 5 yıl: +0.47% (740 işlem) | son 5 yıl: +0.54% (841 işlem)
+Turtle 20/10                        ilk 5 yıl: +4.44% (287 işlem) | son 5 yıl: +4.47% (295 işlem)
+Turtle 20/10 + 200MA                ilk 5 yıl: +4.26% (261 işlem) | son 5 yıl: +4.97% (245 işlem)
+Turtle 55/20 + 200MA                ilk 5 yıl: +7.58% (156 işlem) | son 5 yıl: +7.83% (144 işlem)
+200 MA (bot)                        ilk 5 yıl: +8.32% (192 işlem) | son 5 yıl: +8.67% (191 işlem)
+
+=== PORTFÖY (13 varlık, spot, işlem başı risk %1; 200 MA bottaki gibi %0,5/%1) ===
+                                 yıllık getiri % max düşüş % getiri/düşüş ort. maruziyet % işlem kötü yıl % kazançlı yıl
+RSI-2 <10, stopsuz                           6.9       -12.6         0.55               14   920       -4.8         8/10
+RSI-2 <10, 3ATR stop                         4.7       -11.4         0.41               15   935       -5.1         8/10
+RSI-2 <5, 3ATR stop                          3.8        -8.3         0.45                7   464       -6.4         8/10
+RSI-2 <10, 3ATR, 200MA filtresiz             5.6       -18.2         0.31               23  1559       -8.3         8/10
+Turtle 20/10                                25.8       -23.1         1.12               64   466      -14.1         9/10
+Turtle 20/10 + 200MA                        24.5       -23.1         1.06               59   418      -11.7         9/10
+Turtle 55/20 + 200MA                        22.8       -26.2         0.87               60   253      -12.7         9/10
+200 MA (bot)                                24.7       -30.0         0.82               74   345      -25.2         8/10
+
+=== KOMBİNASYONLAR (aynı kasa, sistemler birlikte) ===
+200 MA (bot) + RSI-2 <10, 3ATR stop: {'yıllık getiri %': np.float64(25.7), 'max düşüş %': np.float64(-32.6), 'getiri/düşüş': np.float64(0.79), 'ort. maruziyet %': 77, 'işlem': 937, 'kötü yıl %': np.float64(-27.2), 'kazançlı yıl': '8/10'}
+200 MA (bot) + Turtle 20/10 + 200MA: {'yıllık getiri %': np.float64(28.2), 'max düşüş %': np.float64(-35.0), 'getiri/düşüş': np.float64(0.81), 'ort. maruziyet %': 81, 'işlem': 552, 'kötü yıl %': np.float64(-31.2), 'kazançlı yıl': '8/10'}
+200 MA (bot) + RSI-2 <10, stopsuz: {'yıllık getiri %': np.float64(27.1), 'max düşüş %': np.float64(-33.1), 'getiri/düşüş': np.float64(0.82), 'ort. maruziyet %': 78, 'işlem': 926, 'kötü yıl %': np.float64(-27.6), 'kazançlı yıl': '8/10'}
