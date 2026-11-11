@@ -90,12 +90,6 @@
  "izleme": [
   {
    "sembol": "XAUUSDT",
-   "orta": 4043.84875,
-   "olay": "giris",
-   "zaman": "2026-11-10T18:31:59.529899+00:00"
-  },
-  {
-   "sembol": "XAUUSDT",
    "orta": 3976.05625,
    "olay": "giris",
    "zaman": "2026-11-11T18:01:56.751478+00:00"
