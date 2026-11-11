@@ -89,12 +89,6 @@
  "son_ozet": "2026-11-11",
  "izleme": [
   {
-   "sembol": "XAUUSDT",
-   "orta": 4085.7287499999998,
-   "olay": "giris",
-   "zaman": "2026-11-10T09:16:56.141776+00:00"
-  },
-  {
    "sembol": "XAGUSDT",
    "orta": 51.453625,
    "olay": "giris",
