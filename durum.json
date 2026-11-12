@@ -83,7 +83,8 @@
   "ETHUSDT|1h|mitigation|short|2026-11-10T09:00",
   "ETHUSDT|15m|retest|short|2026-11-10T10:00",
   "BTCUSDT|15m|mitigation|long|2026-11-10T20:30",
-  "BTCUSDT|1h|mitigation|long|2026-11-11T07:00"
+  "BTCUSDT|1h|mitigation|long|2026-11-11T07:00",
+  "BTCUSDT|15m|retest|short|2026-11-12T15:00"
  ],
  "son_kalp_atisi": "2026-11-12",
  "son_ozet": "2026-11-12",
