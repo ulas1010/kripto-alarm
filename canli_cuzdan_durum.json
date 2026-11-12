@@ -1,13 +1,5 @@
 {
  "pozisyonlar": {
-  "manual|NVDA-USDT-SWAP|long": {
-   "account": "manual",
-   "instId": "NVDA-USDT-SWAP",
-   "side": "long",
-   "pos": 192.47,
-   "avgPx": 155.65809502779655,
-   "lever": 30
-  },
   "manual|BTC-USDT-SWAP|long": {
    "account": "manual",
    "instId": "BTC-USDT-SWAP",
@@ -51,7 +43,8 @@
   "manual-lit-20261007-2014",
   "manual-lit-20261007-0608",
   "manual-lit-20261006-1928",
-  "manual:4091416266140618753:1794436106585:1794494381497"
+  "manual:4091416266140618753:1794436106585:1794494381497",
+  "manual:4091416266140618753:1794436106585:1794494617867"
  ],
- "son_kontrol": "2026-11-12 17:46"
+ "son_kontrol": "2026-11-12 18:01"
 }
