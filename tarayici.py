@@ -711,11 +711,16 @@ class Telegram:
         if not self.token:
             print(f"[TELEGRAM YOK] foto: {dosya}\n{metin}\n")
             return
-        with open(dosya, "rb") as f:
-            r = requests.post(f"{self.base}/sendPhoto", data=dict(chat_id=self.chat_id,
-                              caption=metin[:1024], parse_mode="HTML"), files=dict(photo=f), timeout=60)
-        if not r.ok:
-            print("Foto gönderilemedi, metin gönderiliyor:", r.text)
+        try:
+            with open(dosya, "rb") as f:
+                r = requests.post(f"{self.base}/sendPhoto", data=dict(chat_id=self.chat_id,
+                                  caption=metin[:1024], parse_mode="HTML"), files=dict(photo=f), timeout=60)
+            hata = None if r.ok else r.text
+        except requests.RequestException as e:
+            # Telegram cevap vermezse (zaman aşımı vb.) çalışma çökmesin; uyarı metin olarak gitsin
+            hata = f"{e.__class__.__name__}"
+        if hata:
+            print("Foto gönderilemedi, metin gönderiliyor:", hata)
             self.mesaj(metin)
 
     def chat_bul(self):
