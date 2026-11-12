@@ -52,12 +52,21 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python tarayici.py --mod "${{ steps.mod.outputs.mod }}"
 
+      - name: Canlı cüzdan takibi
+        if: always()
+        continue-on-error: true   # burada hata olsa da alarm botu etkilenmez
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python canli_cuzdan.py
+
       - name: Gönderilen sinyalleri kaydet
+        if: always()
         run: |
-          if ! git diff --quiet durum.json; then
+          if [ -n "$(git status --porcelain durum.json canli_cuzdan_durum.json)" ]; then
             git config user.name "kripto-alarm-bot"
             git config user.email "kripto-alarm-bot@users.noreply.github.com"
-            git add durum.json
+            git add durum.json canli_cuzdan_durum.json
             git commit -m "durum güncellendi"
             git push || (git pull --rebase && git push)
           fi
