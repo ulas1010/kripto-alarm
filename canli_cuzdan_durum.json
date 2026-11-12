@@ -4,8 +4,8 @@
    "account": "manual",
    "instId": "NVDA-USDT-SWAP",
    "side": "long",
-   "pos": 318.5,
-   "avgPx": 156.73408822605967,
+   "pos": 192.47,
+   "avgPx": 155.65809502779655,
    "lever": 30
   },
   "manual|BTC-USDT-SWAP|long": {
@@ -50,7 +50,8 @@
   "manual-lit-20261011-1524",
   "manual-lit-20261007-2014",
   "manual-lit-20261007-0608",
-  "manual-lit-20261006-1928"
+  "manual-lit-20261006-1928",
+  "manual:4091416266140618753:1794436106585:1794494381497"
  ],
- "son_kontrol": "2026-11-12 17:17"
+ "son_kontrol": "2026-11-12 17:46"
 }
