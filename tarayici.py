@@ -45,6 +45,7 @@ LTF_AYAR = {
     "15m": dict(pivot=4, pencere=6, bekleme=48, bekleme_suresi=24),
     "30m": dict(pivot=3, pencere=4, bekleme=40, bekleme_suresi=16),
     "1h": dict(pivot=3, pencere=3, bekleme=36, bekleme_suresi=12),
+    "4h": dict(pivot=3, pencere=2, bekleme=30, bekleme_suresi=6),
 }
 HTF_PIVOT = {"1d": 5, "4h": 6}
 HTF_AGIRLIK = {"1d": 2, "4h": 1}
@@ -767,13 +768,17 @@ def sembol_analiz(sembol, veri=None):
                          if not any(b.alt <= m.ust and b.ust >= m.alt for m in manuel)]
     # Efloud'a yakın: günlük grafikte tepe/dip yapısından trend (EMA yerine)
     trend = yapisal_trend(df_d.tail(150), 3)
+    # Efloud: "4 saatlikte HH/HL (yükselen tepe/dip) görülmeden alımda dikkatli olun"
+    df4 = htf.get("4h")
+    trend_4s = yapisal_trend(df4.tail(300), 4) if df4 is not None else "yatay / kararsız"
     sinyaller = {}
     for tf, df in ltf.items():
         ss = yapilari_tara(df, tf, sembol, bolgeler)
         for s in ss:
             s.trend = trend
         sinyaller[tf] = ss
-    return dict(htf=htf, ltf=ltf, bolgeler=bolgeler, trend=trend, fiyat=fiyat, sinyaller=sinyaller)
+    return dict(htf=htf, ltf=ltf, bolgeler=bolgeler, trend=trend, trend_4s=trend_4s, fiyat=fiyat,
+                sinyaller=sinyaller)
 
 
 def ozet_gonder(tg: Telegram, analizler, gecici: Path, ek=""):
@@ -967,7 +972,7 @@ def gunluk_ozet_gerekirse(tg, analizler, durum, gecici):
 # ONAY ADAYI + KÂĞIT ÜZERİNDE TAKİP (sadece Efloud bölgelerinde)
 # ----------------------------------------------------------------------------
 KAGIT_KOMISYON = 0.001
-KAGIT_MAKS_SAAT = {"15m": 48, "30m": 72, "1h": 120}
+KAGIT_MAKS_SAAT = {"15m": 48, "30m": 72, "1h": 120, "4h": 144}
 
 
 def trend_iliskisi(trend, yon):
@@ -978,7 +983,7 @@ def trend_iliskisi(trend, yon):
     return "yatay piyasa"
 
 
-def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list) -> list[str]:
+def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list, trend_4s: str = "") -> list[str]:
     """Efloud'un mantığına göre basit kontrol listesi: ✅ uygun, ❌ uygun değil, ➖ nötr."""
     ilis = trend_iliskisi(s.trend, s.yon)
     stop_y = abs(s.giris - s.stop) / s.giris * 100
@@ -990,6 +995,13 @@ def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list) -> list[str]:
         ("✅", f"Yön bölgenin rolüne uygun ({rol} → {s.yon})"),
         ("✅" if ilis == "trend yönünde" else "➖" if ilis == "yatay piyasa" else "❌",
          f"Trend: {ilis}"),
+        ("✅" if trend_iliskisi(trend_4s, s.yon) == "trend yönünde" else
+         "➖" if trend_iliskisi(trend_4s, s.yon) == "yatay piyasa" else "❌",
+         ("4 saatlikte yükselen tepe/dip (HH/HL) var" if s.yon == "long"
+          else "4 saatlikte alçalan tepe/dip (LH/LL) var")
+         if trend_iliskisi(trend_4s, s.yon) == "trend yönünde" else
+         f"4 saatlik yapı: {trend_4s} (Efloud: HH/HL görmeden alımda dikkatli ol)" if s.yon == "long"
+         else f"4 saatlik yapı: {trend_4s}"),
         ("✅" if stop_y >= 1.0 else "❌", f"Stop en az %1 (%{stop_y:.2f})"),
         ("✅" if s.rr1 >= 1.5 else "❌", f"Hedef 1 en az 1,5R (R {s.rr1})"),
         ("✅" if not arada else "❌",
@@ -1079,7 +1091,7 @@ def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
                 d = grafik_ciz(df, s, a["bolgeler"],
                                f"{sembol} • {TF_ADI[tf]} • {YAPI_ADI[s.yapi]} ({s.yon.upper()}) • aday #{no}",
                                gecici / f"aday_{sembol}_{tf}_{s.i}.png")
-                tg.foto(d, onay_adayi_metni(s, no, b.aciklama, kontrol_listesi(s, rol, a["bolgeler"])))
+                tg.foto(d, onay_adayi_metni(s, no, b.aciklama, kontrol_listesi(s, rol, a["bolgeler"], a.get("trend_4s", ""))))
                 kagit["acik"].append(dict(
                     no=no, sembol=sembol, tf=tf, yapi=s.yapi, yon=s.yon, trend=s.trend,
                     iliski=trend_iliskisi(s.trend, s.yon), giris=s.giris, stop=s.stop, tp1=s.tp1,

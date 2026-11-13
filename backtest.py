@@ -33,7 +33,7 @@ import ayarlar
 import tarayici as T
 
 KOMISYON = 0.001  # giriş + çıkış toplamı
-MAKS_SURE_MUM15 = {"15m": 2 * 96, "30m": 3 * 96, "1h": 5 * 96}  # 15dk'lık mum cinsinden bekleme süresi
+MAKS_SURE_MUM15 = {"15m": 2 * 96, "30m": 3 * 96, "1h": 5 * 96, "4h": 6 * 96}  # 15dk'lık mum cinsinden bekleme süresi
 CIKTI = T.KOK / "backtest"
 
 
@@ -222,7 +222,7 @@ def sonuc_hesapla(k: dict, d15: pd.DataFrame, ilk_mum_sadece_stop=False) -> dict
                 sure_saat=round((sonuc_tp1[2] - bas + 1) * 0.25, 1), ucret_R=round(ucret, 3))
 
 
-LIMIT_BEKLEME_MUM15 = {"15m": 8, "30m": 16, "1h": 32}
+LIMIT_BEKLEME_MUM15 = {"15m": 8, "30m": 16, "1h": 32, "4h": 64}
 
 
 def limit_sonuc(k: dict, d15: pd.DataFrame) -> dict:

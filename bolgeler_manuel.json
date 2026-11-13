@@ -1,54 +1,61 @@
 {
- "_aciklama": "Efloud analizlerinden alınan bölgeler. Kaynak: OKX TR Haftalık Araştırma Raporu #48 (22.10.2026). Claude günceller. rol: destek = long onayı aranır, direnç = short onayı aranır, ikisi = kaybedilmiş/kazanılacak seviye.",
+ "_aciklama": "Efloud analizlerinden alınan bölgeler. BTC: HTF güncellemeleri (13.11.2026). ETH: OKX TR Haftalık Rapor #48 (22.10.2026), yeni ETH seviyesi verilmedi. rol: destek = long onayı aranır, direnç = short onayı aranır, ikisi = kaybedilmiş/kazanılacak seviye. Claude günceller.",
  "BTCUSDT": [
-  {
-   "alt": 100000,
-   "ust": 100600,
-   "kaynak": "Efloud #48",
-   "not": "Psikolojik direnç 100.300; 93.500 sonrası hedef.",
-   "rol": "direnç"
-  },
-  {
-   "alt": 93200,
-   "ust": 93800,
-   "kaynak": "Efloud #48",
-   "not": "25' YO 93.500: YO momentumla kazanılırsa sıradaki hedef/direnç.",
-   "rol": "direnç"
-  },
   {
    "alt": 87300,
    "ust": 87900,
-   "kaynak": "Efloud #48",
-   "not": "YO (yıllık açılış) ~87.600. Momentumla kazanılırsa yol 93.500'e açılır.",
-   "rol": "direnç"
+   "kaynak": "Efloud 13.11",
+   "rol": "direnç",
+   "not": "YO (yıllık açılış) 87.638: kurumsal seviye, düşüş serisi buradan başladı."
   },
   {
    "alt": 85100,
    "ust": 86350,
-   "kaynak": "Efloud #48",
-   "not": "Günlük imbalance 85.100 + LTF 85.300; 85.390–86.350 güncel direnç. Buradan ret aldı; kazanılmadıkça kısa vadede temkinli/bearish.",
-   "rol": "direnç"
+   "kaynak": "Efloud 13.11",
+   "rol": "direnç",
+   "not": "85.100 HTF direnç."
   },
   {
-   "alt": 80200,
-   "ust": 80800,
-   "kaynak": "Efloud #48",
-   "not": "Güncel destek 80.400 (LTF'de 80.800 çalıştı). Kaybı düşüşü derinleştirebilir.",
-   "rol": "destek"
+   "alt": 75300,
+   "ust": 75900,
+   "kaynak": "Efloud 13.11",
+   "rol": "direnç",
+   "not": "75.600 tekrar geçilmeden HTF'deki sıkıntılar devam eder. Fiyat buradan ret aldı."
   },
   {
-   "alt": 76700,
-   "ust": 77500,
-   "kaynak": "Efloud #48",
-   "not": "PMO (aylık açılış) ile 77.000 arası: LTF onay yapıları ile yükseliş teyidi aranacak bölge.",
-   "rol": "destek"
+   "alt": 72000,
+   "ust": 73300,
+   "kaynak": "Efloud 13.11",
+   "rol": "direnç",
+   "not": "Mavi kutu: kaybedildi, güncel direnç ~73.000. Efloud buradan direkt alım önermedi, onay oluşmadı."
   },
   {
-   "alt": 71700,
-   "ust": 72700,
-   "kaynak": "Efloud #48",
-   "not": "Mavi kutu 72.000: 77.000 kaybedilirse. LTF bullish onay sonrası swing pozisyon düşünülebilir.",
-   "rol": "destek"
+   "alt": 70700,
+   "ust": 71300,
+   "kaynak": "Efloud 13.11",
+   "rol": "ikisi",
+   "not": "71.000: kaybını görmek istemediği seviyeydi, kaybedildi. Geri kazanımı olumlu olur."
+  },
+  {
+   "alt": 65000,
+   "ust": 65600,
+   "kaynak": "Efloud 13.11",
+   "rol": "destek",
+   "not": "65.300: 71.000 kaybı sonrası gündemine gelen bölge."
+  },
+  {
+   "alt": 63600,
+   "ust": 64400,
+   "kaynak": "Efloud 13.11",
+   "rol": "destek",
+   "not": "HTF destek ~64.000 (önceki ATH 63.997). Ağustos'taki yükselişin başladığı talep alanı. 4 saatlikte HH/HL görmeden alımda dikkatli ol."
+  },
+  {
+   "alt": 59700,
+   "ust": 61200,
+   "kaynak": "Efloud 13.11",
+   "rol": "destek",
+   "not": "Yeşil kutu (grafikten yaklaşık): Haziran-Temmuz dipleri, ana talep alanı."
   }
  ],
  "ETHUSDT": [
@@ -98,8 +105,8 @@
    "alt": 2120,
    "ust": 2160,
    "kaynak": "Efloud #48",
-   "not": "Major S/R 2.140: mavi kutu kaybı sonrası yeni alım düşünceleri gündeme gelebilir.",
-   "rol": "destek"
+   "not": "Major S/R 2.140: fiyat altına indi, artık direnç olabilir. Geri kazanımı olumlu olur.",
+   "rol": "ikisi"
   }
  ]
 }

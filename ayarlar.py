@@ -20,7 +20,8 @@ SEMBOLLER = ["BTCUSDT", "ETHUSDT", "XAUUSDT", "XAGUSDT"]
 
 # Onay (confirmation) aranacak düşük zaman dilimleri.
 # Efloud: 4s / 1s / 15dk gibi zaman dilimlerine inip onay arıyor.
-ONAY_ZAMAN_DILIMLERI = ["15m", "1h"]
+# Efloud (13.11.2026): "mavi kutuda 1H-4H gibi zaman dilimlerindeki onay yapılarıyla alım düşünülmeli"
+ONAY_ZAMAN_DILIMLERI = ["15m", "1h", "4h"]
 
 # Destek/direnç bölgelerinin bulunacağı yüksek zaman dilimleri
 BOLGE_ZAMAN_DILIMLERI = ["1d", "4h"]
@@ -48,7 +49,7 @@ GUNLUK_OZET = True
 
 # Yapı oluştuktan en fazla kaç dakika sonra alarm gönderilsin.
 # Bundan daha geç fark edilen yapılar (fiyat çoktan kaçmış olabilir) GÖNDERİLMEZ.
-MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30}
+MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30, "4h": 45}
 
 # Onay adayı: stop mesafesi bundan darsa aday gönderilmez (backtest: %1'den dar stoplar zarar ettirdi)
 ADAY_MIN_STOP_YUZDE = 1.0
