@@ -8,16 +8,17 @@
    "stop": 449.0400085449219,
    "tp1": 560.7068596328736,
    "tp1_alindi": true,
-   "son_kontrol": "2026-11-12"
+   "son_kontrol": "2026-11-13"
   },
   "AMD|TURTLE": {
    "tip": "TURTLE",
-   "durum": "bekliyor",
+   "durum": "acik",
    "sinyal_tarih": "2026-11-12",
    "mesafe": 73.92842716181048,
-   "giris": null,
-   "stop": null,
-   "son_kontrol": "2026-11-12"
+   "giris": 566.7899780273438,
+   "stop": 492.8615508655333,
+   "son_kontrol": "2026-11-13",
+   "giris_tarih": "2026-11-13"
   }
  },
  "kapali": [
