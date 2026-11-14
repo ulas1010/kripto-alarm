@@ -7,6 +7,14 @@
    "pos": 35.16,
    "avgPx": 71086.9696814562,
    "lever": 5
+  },
+  "manual|XAU-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "XAU-USDT-SWAP",
+   "side": "long",
+   "pos": 1299,
+   "avgPx": 3849,
+   "lever": 3
   }
  },
  "gorulen": [
@@ -46,5 +54,5 @@
   "manual:4091416266140618753:1794436106585:1794494381497",
   "manual:4091416266140618753:1794436106585:1794494617867"
  ],
- "son_kontrol": "2026-11-13 06:32"
+ "son_kontrol": "2026-11-14 18:47"
 }
