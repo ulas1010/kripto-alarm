@@ -97,17 +97,12 @@
   "BTCUSDT|4h|retest|short|2026-11-15T04:00",
   "BTCUSDT|1h|retest|long|2026-11-15T08:00",
   "BTCUSDT|4h|retest|long|2026-11-15T08:00",
-  "BTCUSDT|15m|retest|short|2026-11-15T14:30"
+  "BTCUSDT|15m|retest|short|2026-11-15T14:30",
+  "BTCUSDT|15m|retest|long|2026-11-15T16:15"
  ],
  "son_kalp_atisi": "2026-11-12",
  "son_ozet": "2026-11-15",
  "izleme": [
-  {
-   "sembol": "ETHUSDT",
-   "orta": 1798.67,
-   "olay": "giris",
-   "zaman": "2026-11-14T16:16:59.647125+00:00"
-  },
   {
    "sembol": "BTCUSDT",
    "orta": 65300.0,
