@@ -105,12 +105,6 @@
  "izleme": [
   {
    "sembol": "BTCUSDT",
-   "orta": 62837.263999999996,
-   "olay": "giris",
-   "zaman": "2026-11-14T22:17:04.628992+00:00"
-  },
-  {
-   "sembol": "BTCUSDT",
    "orta": 64000.0,
    "olay": "kayip",
    "zaman": "2026-11-15T01:02:04.369666+00:00"
