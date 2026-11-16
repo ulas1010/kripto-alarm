@@ -112,18 +112,6 @@
  "son_ozet": "2026-11-16",
  "izleme": [
   {
-   "sembol": "XAUUSDT",
-   "orta": 3907.45875,
-   "olay": "giris",
-   "zaman": "2026-11-15T23:17:03.765556+00:00"
-  },
-  {
-   "sembol": "XAGUSDT",
-   "orta": 49.0275,
-   "olay": "giris",
-   "zaman": "2026-11-15T23:17:03.765556+00:00"
-  },
-  {
    "sembol": "BTCUSDT",
    "orta": 64000.0,
    "olay": "giris",
