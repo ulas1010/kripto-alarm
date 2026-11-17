@@ -111,14 +111,8 @@
   "BTCUSDT|15m|retest|long|2026-11-17T02:30"
  ],
  "son_kalp_atisi": "2026-11-12",
- "son_ozet": "2026-11-16",
+ "son_ozet": "2026-11-17",
  "izleme": [
-  {
-   "sembol": "BTCUSDT",
-   "orta": 64000.0,
-   "olay": "giris",
-   "zaman": "2026-11-16T06:02:00.828429+00:00"
-  },
   {
    "sembol": "BTCUSDT",
    "orta": 65300.0,
