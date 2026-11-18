@@ -8,17 +8,7 @@
    "stop": 449.0400085449219,
    "tp1": 560.7068596328736,
    "tp1_alindi": true,
-   "son_kontrol": "2026-11-16"
-  },
-  "AMD|TURTLE": {
-   "tip": "TURTLE",
-   "durum": "acik",
-   "sinyal_tarih": "2026-11-12",
-   "mesafe": 73.92842716181048,
-   "giris": 566.7899780273438,
-   "stop": 492.8615508655333,
-   "son_kontrol": "2026-11-16",
-   "giris_tarih": "2026-11-13"
+   "son_kontrol": "2026-11-17"
   }
  },
  "kapali": [
@@ -47,6 +37,20 @@
    "son_kontrol": "2026-11-04",
    "sonuc_R": -1.0,
    "kapanis": "2026-11-05"
+  },
+  {
+   "varlik": "AMD",
+   "tip": "TURTLE",
+   "durum": "acik",
+   "sinyal_tarih": "2026-11-12",
+   "mesafe": 73.92842716181048,
+   "giris": 566.7899780273438,
+   "stop": 492.8615508655333,
+   "son_kontrol": "2026-11-17",
+   "giris_tarih": "2026-11-13",
+   "cikis": 492.8615508655333,
+   "kapanis": "2026-11-17",
+   "sonuc_pct": -13.24
   }
  ]
 }
