@@ -121,17 +121,12 @@
   "BTCUSDT|15m|mitigation|long|2026-11-18T07:45",
   "BTCUSDT|4h|retest|long|2026-11-18T04:00",
   "BTCUSDT|15m|breaker|short|2026-11-18T10:15",
-  "BTCUSDT|15m|retest|short|2026-11-18T15:15"
+  "BTCUSDT|15m|retest|short|2026-11-18T15:15",
+  "BTCUSDT|4h|mitigation|short|2026-11-18T12:00"
  ],
  "son_kalp_atisi": "2026-11-12",
  "son_ozet": "2026-11-18",
  "izleme": [
-  {
-   "sembol": "BTCUSDT",
-   "orta": 62702.763999999996,
-   "olay": "giris",
-   "zaman": "2026-11-17T16:01:57.411241+00:00"
-  },
   {
    "sembol": "BTCUSDT",
    "orta": 65300.0,
