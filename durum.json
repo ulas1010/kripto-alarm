@@ -148,21 +148,6 @@
   "sayac": 26,
   "acik": [
    {
-    "no": 23,
-    "sembol": "BTCUSDT",
-    "tf": "1h",
-    "yapi": "retest",
-    "yon": "long",
-    "trend": "düşüş",
-    "iliski": "trend tersi",
-    "giris": 64731.92,
-    "stop": 63272.31114285714,
-    "tp1": 67523.05,
-    "rr1": 1.91,
-    "bolge": "⭐ Efloud 13.11 bölgesi",
-    "zaman": "2026-11-17T23:00:00+00:00"
-   },
-   {
     "no": 24,
     "sembol": "BTCUSDT",
     "tf": "1h",
@@ -592,6 +577,24 @@
     "sonuc": "stop",
     "R": -1.08,
     "kapanis": "2026-11-18T12:47:08.444836+00:00"
+   },
+   {
+    "no": 23,
+    "sembol": "BTCUSDT",
+    "tf": "1h",
+    "yapi": "retest",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 64731.92,
+    "stop": 63272.31114285714,
+    "tp1": 67523.05,
+    "rr1": 1.91,
+    "bolge": "⭐ Efloud 13.11 bölgesi",
+    "zaman": "2026-11-17T23:00:00+00:00",
+    "sonuc": "stop",
+    "R": -1.04,
+    "kapanis": "2026-11-18T15:02:05.461442+00:00"
    }
   ]
  },
