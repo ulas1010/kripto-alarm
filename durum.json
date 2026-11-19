@@ -133,12 +133,6 @@
  "son_ozet": "2026-11-19",
  "izleme": [
   {
-   "sembol": "ETHUSDT",
-   "orta": 1809.4134999999999,
-   "olay": "giris",
-   "zaman": "2026-11-18T17:47:06.046154+00:00"
-  },
-  {
    "sembol": "BTCUSDT",
    "orta": 62702.763999999996,
    "olay": "giris",
