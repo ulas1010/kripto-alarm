@@ -15,6 +15,14 @@
    "pos": 1299,
    "avgPx": 3849,
    "lever": 3
+  },
+  "manual|LIT-USDT-SWAP|short": {
+   "account": "manual",
+   "instId": "LIT-USDT-SWAP",
+   "side": "short",
+   "pos": 871,
+   "avgPx": 2.8683,
+   "lever": 10
   }
  },
  "gorulen": [
@@ -58,5 +66,5 @@
   "manual:4026614509154144256:1794870918987:1794930074132",
   "manual:4026614509154144256:1794870918987:1794931688789"
  ],
- "son_kontrol": "2026-11-17 19:17"
+ "son_kontrol": "2026-11-19 09:16"
 }
