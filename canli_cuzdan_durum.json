@@ -12,8 +12,8 @@
    "account": "manual",
    "instId": "XAU-USDT-SWAP",
    "side": "long",
-   "pos": 1299,
-   "avgPx": 3849,
+   "pos": 1983,
+   "avgPx": 3740.036006051437,
    "lever": 3
   },
   "manual|ANTHROPIC-USDT-SWAP|long": {
@@ -69,5 +69,5 @@
   "manual:4114469935417208833:1795123159469:1795126887130",
   "manual:4114847330972282881:1795134406733:1795136864959"
  ],
- "son_kontrol": "2026-11-20 05:02"
+ "son_kontrol": "2026-11-20 05:47"
 }
