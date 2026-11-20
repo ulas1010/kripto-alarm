@@ -15,6 +15,14 @@
    "pos": 1983,
    "avgPx": 3740.036006051437,
    "lever": 3
+  },
+  "manual|ANTHROPIC-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "ANTHROPIC-USDT-SWAP",
+   "side": "long",
+   "pos": 45.977,
+   "avgPx": 87,
+   "lever": 3
   }
  },
  "gorulen": [
@@ -62,5 +70,5 @@
   "manual:4114847330972282881:1795134406733:1795136864959",
   "manual:4114847330972282881:1795139682515:1795144854974"
  ],
- "son_kontrol": "2026-11-20 06:32"
+ "son_kontrol": "2026-11-20 16:31"
 }
