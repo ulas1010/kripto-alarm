@@ -4,8 +4,8 @@
    "account": "manual",
    "instId": "BTC-USDT-SWAP",
    "side": "long",
-   "pos": 35.16,
-   "avgPx": 71086.9696814562,
+   "pos": 41.62,
+   "avgPx": 69662.57698222008,
    "lever": 5
   },
   "manual|XAU-USDT-SWAP|long": {
@@ -14,6 +14,14 @@
    "side": "long",
    "pos": 1299,
    "avgPx": 3849,
+   "lever": 3
+  },
+  "manual|ANTHROPIC-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "ANTHROPIC-USDT-SWAP",
+   "side": "long",
+   "pos": 54.401,
+   "avgPx": 91.91,
    "lever": 3
   }
  },
@@ -61,5 +69,5 @@
   "manual:4114469935417208833:1795123159469:1795126887130",
   "manual:4114847330972282881:1795134406733:1795136864959"
  ],
- "son_kontrol": "2026-11-20 04:17"
+ "son_kontrol": "2026-11-20 05:02"
 }
