@@ -8,14 +8,6 @@
    "avgPx": 69662.57698222008,
    "lever": 5
   },
-  "manual|XAU-USDT-SWAP|long": {
-   "account": "manual",
-   "instId": "XAU-USDT-SWAP",
-   "side": "long",
-   "pos": 1983,
-   "avgPx": 3740.036006051437,
-   "lever": 3
-  },
   "manual|LIT-USDT-SWAP|long": {
    "account": "manual",
    "instId": "LIT-USDT-SWAP",
@@ -23,6 +15,14 @@
    "pos": 4486,
    "avgPx": 2.22895541685243,
    "lever": 10
+  },
+  "manual|XAU-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "XAU-USDT-SWAP",
+   "side": "long",
+   "pos": 1983,
+   "avgPx": 3740.036006051437,
+   "lever": 3
   }
  },
  "gorulen": [
@@ -69,7 +69,8 @@
   "manual:4114469935417208833:1795123159469:1795126887130",
   "manual:4114847330972282881:1795134406733:1795136864959",
   "manual:4114847330972282881:1795139682515:1795144854974",
-  "manual:4114847330972282881:1795180837285:1795183512082"
+  "manual:4114847330972282881:1795180837285:1795183512082",
+  "manual:4110902933704486914:1795016854534:1795268188649"
  ],
- "son_kontrol": "2026-11-21 06:47"
+ "son_kontrol": "2026-11-21 16:47"
 }
