@@ -1,5 +1,22 @@
 {
- "pozisyonlar": {},
+ "pozisyonlar": {
+  "manual|BTC-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "BTC-USDT-SWAP",
+   "side": "long",
+   "pos": 41.62,
+   "avgPx": 69662.57698222008,
+   "lever": 5
+  },
+  "manual|XAU-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "XAU-USDT-SWAP",
+   "side": "long",
+   "pos": 1983,
+   "avgPx": 3740.036006051437,
+   "lever": 3
+  }
+ },
  "gorulen": [
   "manual:4091086495464624129:1794426278653:1794460628628",
   "manual:4083720545216040964:1794206756229:1794425128801",
@@ -48,5 +65,5 @@
   "manual:4110902933704486914:1795016854534:1795268188649",
   "manual:4004378838276575232:1795231820696:1795275068694"
  ],
- "son_kontrol": "2026-11-22 09:17"
+ "son_kontrol": "2026-11-22 09:31"
 }
