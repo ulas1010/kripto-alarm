@@ -145,7 +145,7 @@
   "BTCUSDT|1h|sfp|long|2026-11-23T03:00"
  ],
  "son_kalp_atisi": "2026-11-19",
- "son_ozet": "2026-11-22",
+ "son_ozet": "2026-11-23",
  "izleme": [
   {
    "sembol": "BTCUSDT",
@@ -821,5 +821,5 @@
    }
   ]
  },
- "son_haftalik": "2026-W47"
+ "son_haftalik": "2026-W48"
 }
