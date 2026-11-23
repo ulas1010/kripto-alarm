@@ -1,5 +1,13 @@
 {
  "pozisyonlar": {
+  "manual|ANTHROPIC-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "ANTHROPIC-USDT-SWAP",
+   "side": "long",
+   "pos": 114.731,
+   "avgPx": 87.16,
+   "lever": 3
+  },
   "manual|BTC-USDT-SWAP|long": {
    "account": "manual",
    "instId": "BTC-USDT-SWAP",
@@ -66,5 +74,5 @@
   "manual:4004378838276575232:1795231820696:1795275068694",
   "manual:4083720545216040964:1794474766652:1795443962013"
  ],
- "son_kontrol": "2026-11-23 17:32"
+ "son_kontrol": "2026-11-23 17:47"
 }

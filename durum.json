@@ -143,7 +143,8 @@
   "BTCUSDT|15m|mitigation|long|2026-11-22T23:30",
   "BTCUSDT|15m|breaker|short|2026-11-23T02:15",
   "BTCUSDT|1h|sfp|long|2026-11-23T03:00",
-  "BTCUSDT|15m|retest|long|2026-11-23T08:15"
+  "BTCUSDT|15m|retest|long|2026-11-23T08:15",
+  "BTCUSDT|15m|retest|short|2026-11-23T14:30"
  ],
  "son_kalp_atisi": "2026-11-19",
  "son_ozet": "2026-11-23",
@@ -174,8 +175,24 @@
   }
  ],
  "kagit": {
-  "sayac": 38,
-  "acik": [],
+  "sayac": 39,
+  "acik": [
+   {
+    "no": 39,
+    "sembol": "BTCUSDT",
+    "tf": "15m",
+    "yapi": "retest",
+    "yon": "short",
+    "trend": "düşüş",
+    "iliski": "trend yönünde",
+    "giris": 63338.11,
+    "stop": 64662.05542857143,
+    "tp1": 61400.96,
+    "rr1": 1.46,
+    "bolge": "⭐ Efloud 13.11 bölgesi",
+    "zaman": "2026-11-23T14:45:00+00:00"
+   }
+  ],
   "kapali": [
    {
     "no": 2,
