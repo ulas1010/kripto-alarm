@@ -153,42 +153,29 @@
    "orta": 60450.0,
    "olay": "icinde",
    "zaman": "2026-11-22T15:47:05.256824+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 64000.0,
+   "olay": "giris",
+   "zaman": "2026-11-23T14:02:04.495738+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 62702.763999999996,
+   "olay": "giris",
+   "zaman": "2026-11-23T14:02:04.495738+00:00"
+  },
+  {
+   "sembol": "ETHUSDT",
+   "orta": 1809.4134999999999,
+   "olay": "giris",
+   "zaman": "2026-11-23T14:02:04.495738+00:00"
   }
  ],
  "kagit": {
   "sayac": 38,
-  "acik": [
-   {
-    "no": 36,
-    "sembol": "BTCUSDT",
-    "tf": "15m",
-    "yapi": "breaker",
-    "yon": "long",
-    "trend": "düşüş",
-    "iliski": "trend tersi",
-    "giris": 61119.99,
-    "stop": 58730.343857142856,
-    "tp1": 63600.0,
-    "rr1": 1.04,
-    "bolge": "⭐ Efloud 13.11 bölgesi",
-    "zaman": "2026-11-22T10:00:00+00:00"
-   },
-   {
-    "no": 38,
-    "sembol": "BTCUSDT",
-    "tf": "1h",
-    "yapi": "sfp",
-    "yon": "long",
-    "trend": "düşüş",
-    "iliski": "trend tersi",
-    "giris": 61285.93,
-    "stop": 60344.684785714286,
-    "tp1": 62341.94,
-    "rr1": 1.12,
-    "bolge": "⭐ Efloud 13.11 bölgesi",
-    "zaman": "2026-11-23T04:00:00+00:00"
-   }
-  ],
+  "acik": [],
   "kapali": [
    {
     "no": 2,
@@ -819,6 +806,42 @@
     "sonuc": "stop",
     "R": -1.08,
     "kapanis": "2026-11-23T02:47:03.219059+00:00"
+   },
+   {
+    "no": 36,
+    "sembol": "BTCUSDT",
+    "tf": "15m",
+    "yapi": "breaker",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 61119.99,
+    "stop": 58730.343857142856,
+    "tp1": 63600.0,
+    "rr1": 1.04,
+    "bolge": "⭐ Efloud 13.11 bölgesi",
+    "zaman": "2026-11-22T10:00:00+00:00",
+    "sonuc": "hedef1",
+    "R": 1.01,
+    "kapanis": "2026-11-23T14:02:10.938949+00:00"
+   },
+   {
+    "no": 38,
+    "sembol": "BTCUSDT",
+    "tf": "1h",
+    "yapi": "sfp",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 61285.93,
+    "stop": 60344.684785714286,
+    "tp1": 62341.94,
+    "rr1": 1.12,
+    "bolge": "⭐ Efloud 13.11 bölgesi",
+    "zaman": "2026-11-23T04:00:00+00:00",
+    "sonuc": "hedef1",
+    "R": 1.06,
+    "kapanis": "2026-11-23T14:02:10.938949+00:00"
    }
   ]
  },
