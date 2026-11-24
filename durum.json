@@ -156,24 +156,6 @@
  "izleme": [
   {
    "sembol": "BTCUSDT",
-   "orta": 64000.0,
-   "olay": "giris",
-   "zaman": "2026-11-23T14:02:04.495738+00:00"
-  },
-  {
-   "sembol": "BTCUSDT",
-   "orta": 62702.763999999996,
-   "olay": "giris",
-   "zaman": "2026-11-23T14:02:04.495738+00:00"
-  },
-  {
-   "sembol": "ETHUSDT",
-   "orta": 1809.4134999999999,
-   "olay": "giris",
-   "zaman": "2026-11-23T14:02:04.495738+00:00"
-  },
-  {
-   "sembol": "BTCUSDT",
    "orta": 60450.0,
    "olay": "giris",
    "zaman": "2026-11-23T19:47:05.600468+00:00"
