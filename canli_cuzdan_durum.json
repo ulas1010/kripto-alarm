@@ -1,13 +1,5 @@
 {
  "pozisyonlar": {
-  "manual|ANTHROPIC-USDT-SWAP|long": {
-   "account": "manual",
-   "instId": "ANTHROPIC-USDT-SWAP",
-   "side": "long",
-   "pos": 192.754,
-   "avgPx": 83.0069552901626,
-   "lever": 3
-  },
   "manual|BTC-USDT-SWAP|long": {
    "account": "manual",
    "instId": "BTC-USDT-SWAP",
@@ -15,6 +7,14 @@
    "pos": 4.17,
    "avgPx": 69662.57698222008,
    "lever": 5
+  },
+  "manual|ANTHROPIC-USDT-SWAP|long": {
+   "account": "manual",
+   "instId": "ANTHROPIC-USDT-SWAP",
+   "side": "long",
+   "pos": 96.377,
+   "avgPx": 83.0069552901626,
+   "lever": 3
   },
   "manual|XAU-USDT-SWAP|long": {
    "account": "manual",
@@ -72,7 +72,8 @@
   "manual:4114847330972282881:1795180837285:1795183512082",
   "manual:4110902933704486914:1795016854534:1795268188649",
   "manual:4004378838276575232:1795231820696:1795275068694",
-  "manual:4083720545216040964:1794474766652:1795443962013"
+  "manual:4083720545216040964:1794474766652:1795443962013",
+  "manual:4114847330972282881:1795444390209:1795634516894"
  ],
- "son_kontrol": "2026-11-25 15:02"
+ "son_kontrol": "2026-11-25 22:31"
 }
