@@ -15,9 +15,9 @@
  },
  "bg_sayac": {
   "gun": "2026-11-27",
-  "gun_n": 3,
+  "gun_n": 5,
   "saat": "2026-11-27T12",
-  "saat_n": 3
+  "saat_n": 5
  },
  "spot": {
   "Realized Price (piyasanın ortalama maliyeti)": {
@@ -31,5 +31,6 @@
  },
  "son_saat": "2026-11-27T11:00:00+00:00",
  "son_gun_BTCUSDT": "2026-11-26T00:00:00+00:00",
- "son_gun_ETHUSDT": "2026-11-26T00:00:00+00:00"
+ "son_gun_ETHUSDT": "2026-11-26T00:00:00+00:00",
+ "son_ozet": "2026-11-27"
 }
