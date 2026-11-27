@@ -11,13 +11,25 @@
    "tarih": "2026-11-20",
    "kaynak": "BGeometrics (7 gün gecikmeli)"
   },
-  "_tmm_gun": "2026-11-27"
+  "_tmm_gun": "2026-11-27",
+  "sth_rp": {
+   "deger": 73129.19,
+   "tarih": "2026-11-20",
+   "kaynak": "BGeometrics (7 gün gecikmeli)"
+  },
+  "_sth_rp_gun": "2026-11-27",
+  "lth_rp": {
+   "deger": 48337.19,
+   "tarih": "2026-11-20",
+   "kaynak": "BGeometrics (7 gün gecikmeli)"
+  },
+  "_lth_rp_gun": "2026-11-27"
  },
  "bg_sayac": {
   "gun": "2026-11-27",
-  "gun_n": 5,
+  "gun_n": 7,
   "saat": "2026-11-27T12",
-  "saat_n": 5
+  "saat_n": 7
  },
  "spot": {
   "Realized Price (piyasanın ortalama maliyeti)": {
