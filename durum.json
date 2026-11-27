@@ -160,7 +160,13 @@
   "BTCUSDT|1h|mitigation|long|2026-11-27T02:00",
   "OTE|BTCUSDT|15m|long|2026-11-26T15:00|2",
   "OTE|BTCUSDT|15m|long|2026-11-26T15:00|1",
-  "OTE|BTCUSDT|15m|short|2026-11-27T08:15|1"
+  "OTE|BTCUSDT|15m|short|2026-11-27T08:15|1",
+  "OTE|BTCUSDT|1h|long|2026-11-26T15:00|2",
+  "OTE|BTCUSDT|1h|long|2026-11-26T15:00|1",
+  "OTE|SOLUSDT|15m|long|2026-11-26T15:00|2",
+  "OTE|SOLUSDT|15m|long|2026-11-26T15:00|1",
+  "OTE|SOLUSDT|1h|long|2026-11-26T15:00|2",
+  "OTE|SOLUSDT|1h|long|2026-11-26T15:00|1"
  ],
  "son_kalp_atisi": "2026-11-26",
  "son_ozet": "2026-11-27",
@@ -176,11 +182,52 @@
    "orta": 62702.763999999996,
    "olay": "giris",
    "zaman": "2026-11-27T06:16:59.023212+00:00"
+  },
+  {
+   "sembol": "BTCUSDT",
+   "orta": 60450.0,
+   "olay": "kayip",
+   "zaman": "2026-11-27T15:02:10.249761+00:00"
   }
  ],
  "kagit": {
-  "sayac": 44,
-  "acik": [],
+  "sayac": 47,
+  "acik": [
+   {
+    "no": 46,
+    "sembol": "SOLUSDT",
+    "tf": "15m",
+    "yapi": "ote",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 70.9549,
+    "stop": 69.68742857142857,
+    "tp1": 73.93,
+    "rr1": 2.35,
+    "bolge": "Günlük bölge",
+    "teyit": 1,
+    "zayif": 0,
+    "zaman": "2026-11-27T14:45:00+00:00"
+   },
+   {
+    "no": 47,
+    "sembol": "SOLUSDT",
+    "tf": "1h",
+    "yapi": "ote",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 70.9549,
+    "stop": 69.64871428571428,
+    "tp1": 73.93,
+    "rr1": 2.28,
+    "bolge": "Günlük bölge",
+    "teyit": 2,
+    "zayif": 0,
+    "zaman": "2026-11-27T14:00:00+00:00"
+   }
+  ],
   "kapali": [
    {
     "no": 2,
@@ -957,6 +1004,26 @@
     "sonuc": "stop",
     "R": -1.09,
     "kapanis": "2026-11-27T14:47:16.218724+00:00"
+   },
+   {
+    "no": 45,
+    "sembol": "BTCUSDT",
+    "tf": "1h",
+    "yapi": "ote",
+    "yon": "long",
+    "trend": "düşüş",
+    "iliski": "trend tersi",
+    "giris": 60603.503450000004,
+    "stop": 59876.843,
+    "tp1": 62248.91,
+    "rr1": 2.26,
+    "bolge": "⭐ Efloud 13.11 bölgesi",
+    "teyit": 2,
+    "zayif": 0,
+    "zaman": "2026-11-27T14:00:00+00:00",
+    "sonuc": "stop",
+    "R": -1.08,
+    "kapanis": "2026-11-27T15:02:14.874159+00:00"
    }
   ]
  },
