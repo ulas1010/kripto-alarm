@@ -39,9 +39,17 @@
   "MVRV 0.8 (önceki döngü dibi)": {
    "tetik": false,
    "seviye": 42426.56164258712
+  },
+  "Kısa vadecilerin maliyeti -%15": {
+   "tetik": true,
+   "seviye": 62159.8115
+  },
+  "Uzun vadecilerin maliyeti": {
+   "tetik": false,
+   "seviye": 48337.19
   }
  },
- "son_saat": "2026-11-27T11:00:00+00:00",
+ "son_saat": "2026-11-27T21:00:00+00:00",
  "son_gun_BTCUSDT": "2026-11-26T00:00:00+00:00",
  "son_gun_ETHUSDT": "2026-11-26T00:00:00+00:00",
  "son_ozet": "2026-11-27"
