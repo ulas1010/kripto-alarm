@@ -120,8 +120,14 @@ def bg_son(uc: str):
     j = r.json()
     if isinstance(j, list):
         j = j[-1]
-    sayilar = [float(v) for k, v in j.items()
-               if k not in ("unixTs", "d") and isinstance(v, (int, float)) and not isinstance(v, bool)]
+    sayilar = []
+    for k, v in j.items():  # değerler sayı ya da metin ("73129.19") olarak gelebiliyor
+        if k in ("unixTs", "d", "delayed", "message") or isinstance(v, bool):
+            continue
+        try:
+            sayilar.append(float(v))
+        except (TypeError, ValueError):
+            pass
     if not sayilar:
         raise RuntimeError(f"beklenmeyen cevap: {str(j)[:150]}")
     deger = sayilar[0]
