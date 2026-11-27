@@ -1,0 +1,35 @@
+{
+ "onchain": {
+  "rp": {
+   "deger": 53033.202053233894,
+   "tarih": "2026-11-26",
+   "kaynak": "Coin Metrics"
+  },
+  "_rp_gun": "2026-11-27",
+  "tmm": {
+   "deger": 77990.13,
+   "tarih": "2026-11-20",
+   "kaynak": "BGeometrics (7 gün gecikmeli)"
+  },
+  "_tmm_gun": "2026-11-27"
+ },
+ "bg_sayac": {
+  "gun": "2026-11-27",
+  "gun_n": 3,
+  "saat": "2026-11-27T12",
+  "saat_n": 3
+ },
+ "spot": {
+  "Realized Price (piyasanın ortalama maliyeti)": {
+   "tetik": false,
+   "seviye": 53033.202053233894
+  },
+  "MVRV 0.8 (önceki döngü dibi)": {
+   "tetik": false,
+   "seviye": 42426.56164258712
+  }
+ },
+ "son_saat": "2026-11-27T11:00:00+00:00",
+ "son_gun_BTCUSDT": "2026-11-26T00:00:00+00:00",
+ "son_gun_ETHUSDT": "2026-11-26T00:00:00+00:00"
+}
