@@ -1411,6 +1411,20 @@ def ote_alarm_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> tuple[
                         continue
                     kagit["sayac"] += 1
                     no = kagit["sayac"]
+                    m = df.iloc[k.dolum_i]
+                    if (m["low"] <= k.stop) if k.yon == "long" else (m["high"] >= k.stop):
+                        # Ani hareket: aynı mum hem OTE'ye hem stopa değdi. Giriş mesajı anlamsız, gönderilmez;
+                        # limit emir koyan biri zarar ederdi, bu yüzden kâğıtta dürüstçe stop olarak kaydedilir.
+                        risk = abs(k.giris - k.stop)
+                        kagit["kapali"].append(dict(
+                            no=no, sembol=sembol, tf=tf, yapi="ote", yon=k.yon, trend=a["trend"],
+                            iliski=trend_iliskisi(a["trend"], k.yon), giris=k.giris, stop=k.stop, tp1=k.tepe,
+                            rr1=k.rr, bolge=k.bolge.etiket, ayni_mum=True,
+                            zaman=pd.Timestamp(k.zaman(k.dolum_i), tz="UTC").isoformat(), sonuc="stop",
+                            R=round(-1.0 - KAGIT_KOMISYON * k.giris / risk, 2),
+                            kapanis=pd.Timestamp.now(tz="UTC").isoformat()))
+                        gh_not("notice", f"OTE ve stop aynı mumda görüldü, mesaj gönderilmedi (kâğıt #{no} stop): {id2}")
+                        continue
                     s = _ote_sinyal(k, k.dolum_i)
                     d = grafik_ciz(df, s, a["bolgeler"], f"{sembol} • {TF_ADI[tf]} • OTE'ye geldi ({k.yon.upper()}) • #{no}",
                                    gecici / f"ote2_{sembol}_{tf}_{k.dolum_i}.png", ote=k.ote, tum_hedef=False, cizgi_bas=k.bos_i)

@@ -1,6 +1,6 @@
 # Kripto Onay (Confirmation) Alarmı
 
-> 🎯 **YENİ: Efloud'un Sweep → BOS → OTE kurgusu (27.11.2026)** — BTC, ETH, SOL ve HYPE'ta 15dk ve 1 saatlikte aranır.
+> 🎯 **YENİ: Efloud'un Sweep → BOS → OTE kurgusu (27.11.2026)** — BTC, ETH, SOL ve HYPE'ta 15dk, 1 saatlik ve 4 saatlikte aranır.
 > Sıra: fitil son dibin altına sarkar ama mum içeride kapanır (likidite alımı) → son kısa vadeli tepe kapanışla kırılır (BOS) →
 > fiyat sweep dibi ile yeni tepe arasındaki Fibonacci'nin 0.62–0.79 aralığına (OTE) geri gelir. Short tarafı aynası.
 > Bot iki mesaj atar: 🧩 **KURULUM (1/2)** kırılım olunca, 🎯 **OTE'YE GELDİ (2/2)** fiyat aralığa gelince (giriş 0.705, stop sweep dibinin altı,

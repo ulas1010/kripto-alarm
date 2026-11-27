@@ -141,6 +141,18 @@ with tempfile.TemporaryDirectory() as g:
     an["TESTUSDT"]["ltf"]["15m"] = df4
     kap = T.kagit_guncelle(tg, an, durum)
     kontrol(kap == 1 and durum["kagit"]["kapali"][-1]["sonuc"] == "hedef1", "kâğıt takip hedefte kapandı")
+
+    # 8) Aynı mumda OTE + stop: mesaj gitmez, kâğıtta stop olarak kaydedilir
+    durum2 = {"gonderilen": [], "kagit": {"sayac": 0, "acik": [], "kapali": []}}
+    g2 = set()
+    df5 = df2.copy()
+    k5 = [x for x in T.ote_tara(df2, "15m", "TESTUSDT", B) if x.yon == "long"][0]
+    df5.loc[k5.dolum_i, "low"] = k5.stop - 0.5
+    an["TESTUSDT"]["ltf"]["15m"] = df5
+    n1, n2 = T.ote_alarm_tara(tg, an, durum2, g, g2, g2.add)
+    kp = durum2["kagit"]["kapali"]
+    kontrol(n2 == 0 and len(kp) == 1 and kp[0]["sonuc"] == "stop" and kp[0]["ayni_mum"] and not durum2["kagit"]["acik"],
+            "aynı mumda stop: mesaj yok, kâğıtta stop")
     import shutil
     for f in g.glob("ote*.png"):
         shutil.copy(f, Path(__file__).parent / f"_ornek_{f.name}")

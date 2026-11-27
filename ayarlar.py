@@ -58,11 +58,11 @@ MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30, "4h": 45}
 # Not: Bu kuralın ham hali 3 yıllık backtest'te tek başına kâr etmedi; mesajlar "grafiğe bak" uyarısıdır.
 # ----------------------------------------------------------------------------
 OTE_SEMBOLLER = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "HYPEUSDT"]
-OTE_ZAMAN_DILIMLERI = ["15m", "1h"]
+OTE_ZAMAN_DILIMLERI = ["15m", "1h", "4h"]  # 4s: seyrek, stop geniş, pin bar teyidi günlük mumdan
 OTE_FIB = (0.62, 0.79)       # OTE aralığı
 OTE_GIRIS_FIB = 0.705        # aralığın ortası: mesajdaki giriş ve kâğıt takip bu seviyeden
-# Kırılımdan sonra fiyatın OTE'ye gelmesi için en fazla kaç mum beklensin (15dk: 24 saat, 1s: 2 gün)
-OTE_DOLUM_MUM = {"15m": 96, "1h": 48}
+# Kırılımdan sonra fiyatın OTE'ye gelmesi için en fazla kaç mum beklensin (15dk: 24 saat, 1s: 2 gün, 4s: 3 gün)
+OTE_DOLUM_MUM = {"15m": 96, "1h": 48, "4h": 18}
 # True: sweep sadece Efloud'un bölgelerinde (bolgeler_manuel.json) aranır. SOL/HYPE'ta Efloud bölgesi yok.
 OTE_SADECE_EFLOUD_BOLGESI = False
 # Stop mesafesi bundan darsa (yüzde) mesaj gönderilmez: çok dar stopu komisyon ve gürültü yer
