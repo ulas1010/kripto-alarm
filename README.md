@@ -22,6 +22,15 @@
 > Backtest (13 varlık, 10 yıl, ertesi açılış, maliyetli): 466 işlem, kazanma %68, işlem başı +%0,8, medyan 4 gün. Risk %1, pozisyon en fazla kasanın %20'si.
 > Sistem karşılaştırması (RSI-2, Turtle, 200 MA): `backtest/kisa_vade_testi.py`, `backtest/ertesi_acilis_testi.py` ve `*_sonuc.txt` dosyaları.
 
+> 🔗 **ON-CHAIN UYARI (27.11.2026)** — `onchain_uyari.py`, saatte bir çalışır (Actions → **On-chain Uyari**).
+> Barış Kardeş'in (OKX TR pazartesi yayınları) on-chain yöntemine göre üç tür mesaj atar:
+> 🟢 **SPOT ALIM BÖLGESİ**: BTC kademeli alım bölgesine girdi (Realized Price, uzun vadeci maliyeti, MVRV 0.8 vb.) + o bölge için ayırdığın pay.
+> 📈/📉 **GÜNLÜK KAPANIŞ**: önemli seviye günlük kapanışla kırıldı/kaybedildi. Kırılımda düşük kaldıraçlı long fikri (giriş, stop, pozisyon) gelir.
+> 🧭 **ÖZET** (her sabah ~09:00): fiyat, Barış'ın 3 yükseliş kriteri (200 günlük ort., kısa vadeci maliyeti, True Market Mean), en yakın seviyeler.
+> Seviyeler: `onchain_seviyeler.json` (elle girilenler her hafta yayından güncellenir; `oto` olanlar her gün kendiliğinden).
+> Kasa ve risk: aynı dosyada `ayarlar` → `kasa_usd`, `trade_risk_yuzde`, `maks_kaldirac`.
+> Veri ücretsiz: Coin Metrics (Realized Price, 1 gün gecikmeli), BGeometrics (kısa/uzun vadeci maliyeti ve True Market Mean, **7 gün gecikmeli**; ücretsiz limitin altında kalır).
+> Barış'ın kendi göstergeleri (sarı/gri renkler, korku endeksi) gizli formül olduğu için bota eklenemez.
 
 Efloud'un **Confirmation (Onay) Mekanizmaları** videosundaki yapıları BTC ve ETH'de otomatik arar.
 Bir yapı oluştuğunda Telegram'a **grafikli** bir mesaj gönderir.

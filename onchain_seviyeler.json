@@ -1,0 +1,69 @@
+{
+ "_aciklama": "Barış Kardeş (OKX TR, pazartesi yayınları) on-chain seviyeleri. Kullanıcı yayını indirip Claude'a atar, Claude bu dosyayı günceller. Son yayın: 23.11.2026. 'oto' alanlı seviyeler her gün ücretsiz kaynaklardan kendiliğinden güncellenir; 'fiyat' alanlı olanlar elle girilir.",
+
+ "ayarlar": {
+  "_not": "kasa_usd: kaldıraçlı trade kasan (USD). Boş (null) kalırsa mesajlarda pozisyon büyüklüğü yerine sadece stop mesafesi yazar.",
+  "kasa_usd": null,
+  "trade_risk_yuzde": 1.0,
+  "maks_kaldirac": 3,
+  "stop_tampon_yuzde": 1.0,
+  "yaklasma_yuzde": 1.5,
+  "spot_yeniden_kurma_yuzde": 5.0
+ },
+
+ "spot_bolgeleri": {
+  "_not": "Kademeli spot alım bölgeleri (sadece BTC). pay_yuzde: spot için ayırdığın nakdin yüzde kaçı bu bölgede kullanılacak (toplam 100). Değerler örnektir, kendi planına göre değiştir.",
+  "liste": [
+   {"ad": "Kısa vadecilerin maliyeti -%15", "oto": "sth_rp", "carpan": 0.85, "pay_yuzde": 15,
+    "not": "Barış: kısa vadecilerin %15 zararda olduğu seviye. Altında kapanışlar satış baskısı demek; üstüne dönüş ilk umut işareti."},
+   {"ad": "Realized Price (piyasanın ortalama maliyeti)", "oto": "rp", "carpan": 1.0, "pay_yuzde": 25,
+    "not": "Barış: önceki döngülerin hepsinde fiyat bunun altına indi. 'Dibin dibi' bölgesinin başlangıcı."},
+   {"ad": "Uzun vadecilerin maliyeti", "oto": "lth_rp", "carpan": 1.0, "pay_yuzde": 30,
+    "not": "Barış: önceki döngülerde fiyat bunun biraz altına sarkıp döndü."},
+   {"ad": "MVRV 0.8 (önceki döngü dibi)", "oto": "rp", "carpan": 0.8, "pay_yuzde": 30,
+    "not": "Barış: önceki döngüde tam dibi gösteren seviye (23.11'de 42.600). Altına da sarkabilir."}
+  ]
+ },
+
+ "oto_seviyeler": {
+  "_not": "Günlük kapanışla kırılım/kayıp takibi yapılan otomatik on-chain seviyeler (BTC).",
+  "liste": [
+   {"ad": "Kısa vadecilerin maliyeti (STH)", "oto": "sth_rp", "carpan": 1.0, "rol": "ikisi",
+    "not": "Barış'ın yükseliş için 3 kriterinden biri."},
+   {"ad": "True Market Mean", "oto": "tmm", "carpan": 1.0, "rol": "ikisi",
+    "not": "Barış: üstü teknik olarak boğa."},
+   {"ad": "Realized Price", "oto": "rp", "carpan": 1.0, "rol": "ikisi",
+    "not": "Piyasanın ortalama maliyeti."}
+  ]
+ },
+
+ "seviyeler": {
+  "BTCUSDT": [
+   {"fiyat": 86000, "ad": "Spot ETF'lerin ortalama maliyeti", "rol": "direnç", "kaynak": "Barış 23.11"},
+   {"fiyat": 84000, "ad": "Aktif Realized Price", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "Boğanın ikinci fazı için aşılması gereken seviye."},
+   {"fiyat": 75600, "ad": "Yıllık ortalama / Saylor maliyeti", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "75.400 yıllık hareketli ortalama, 75.600 Saylor maliyeti."},
+   {"fiyat": 72300, "ad": "200 günlük ortalama", "rol": "direnç", "kaynak": "Barış 23.11"},
+   {"fiyat": 69000, "ad": "1 aylık alıcı maliyeti + önceki döngü zirvesi", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "Alarm kurulmalı dedi. Üstünde kapanışlara ihtiyaç var."},
+   {"fiyat": 64000, "ad": "Büyük birikim bölgesi", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "6 ayda 241 bin BTC bu seviyenin üstünde alınmış; fiyat buradan ret yedi."},
+   {"fiyat": 62357, "ad": "Fibonacci direnci", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "Aşılması gereken önemli direnç. Günlük direnç 62.248 ile aynı bölge."},
+   {"fiyat": 61318, "ad": "Son 1 haftanın alıcı maliyeti", "rol": "ikisi", "kaynak": "Barış 23.11",
+    "not": "Satış baskısının azalması için üstünde kapanış lazım. Her hafta değişir."},
+   {"fiyat": 60000, "ad": "Ana destek", "rol": "destek", "kaynak": "Barış 23.11",
+    "not": "Kırılmaması gereken seviye (max pain 60.500)."}
+  ],
+  "ETHUSDT": [
+   {"fiyat": 1845, "ad": "Fibonacci seviyesi", "rol": "ikisi", "kaynak": "Barış 23.11",
+    "not": "ETH 15, 17 ve 23 Kasım'da tam buradan döndü."},
+   {"fiyat": 1816, "ad": "Günlük direnç", "rol": "direnç", "kaynak": "Barış 23.11",
+    "not": "Üstünde kapanış olumlu."},
+   {"fiyat": 1750, "ad": "7 günlük ortalama", "rol": "ikisi", "kaynak": "Barış 23.11"},
+   {"fiyat": 1628, "ad": "Destek", "rol": "destek", "kaynak": "Barış 23.11",
+    "not": "20 Kasım'da tam buradan tepki aldı. Alarm kurun dedi."}
+  ]
+ }
+}
