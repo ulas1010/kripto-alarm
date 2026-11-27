@@ -115,12 +115,16 @@ def bg_izin(durum) -> bool:
 def bg_son(uc: str):
     """BGeometrics /last: {'d': '2026-11-20', 'unixTs': ..., '<metrik>': 73129.19, ...}"""
     r = requests.get(f"https://bitcoin-data.com/v1/{uc}/last", timeout=20)
-    r.raise_for_status()
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}: {r.text[:150]}")
     j = r.json()
     if isinstance(j, list):
         j = j[-1]
-    deger = next(float(v) for k, v in j.items()
-                 if k not in ("unixTs", "d") and isinstance(v, (int, float)) and not isinstance(v, bool))
+    sayilar = [float(v) for k, v in j.items()
+               if k not in ("unixTs", "d") and isinstance(v, (int, float)) and not isinstance(v, bool)]
+    if not sayilar:
+        raise RuntimeError(f"beklenmeyen cevap: {str(j)[:150]}")
+    deger = sayilar[0]
     return deger, j.get("d", "?")
 
 
@@ -324,6 +328,8 @@ def main():
     cfg = json_oku(SEVIYE_DOSYASI, None)
     durum = json_oku(DURUM_DOSYASI, {})
     sorunlar = onchain_guncelle(durum)
+    if sorunlar:
+        print("On-chain sorunlar:", sorunlar)
 
     veriler = {}
     for sembol in SEMBOLLER:
