@@ -1,5 +1,14 @@
 # Kripto Onay (Confirmation) Alarmı
 
+> 🎯 **YENİ: Efloud'un Sweep → BOS → OTE kurgusu (27.11.2026)** — BTC, ETH, SOL ve HYPE'ta 15dk ve 1 saatlikte aranır.
+> Sıra: fitil son dibin altına sarkar ama mum içeride kapanır (likidite alımı) → son kısa vadeli tepe kapanışla kırılır (BOS) →
+> fiyat sweep dibi ile yeni tepe arasındaki Fibonacci'nin 0.62–0.79 aralığına (OTE) geri gelir. Short tarafı aynası.
+> Bot iki mesaj atar: 🧩 **KURULUM (1/2)** kırılım olunca, 🎯 **OTE'YE GELDİ (2/2)** fiyat aralığa gelince (giriş 0.705, stop sweep dibinin altı,
+> hedef kırılım sonrası tepe). 2/2 mesajında kontrol listesi var (Efloud bölgesi mi, trend, büyük grafikte pin bar, breaker çakışması)
+> ve kurulum kâğıt üstünde takip edilir; haftalık özette ayrı raporlanır. Eski "onay adayı" mesajları kaldırıldı.
+> Not: Bu kuralın ham hali 3 yıllık backtest'te (BTC/ETH/SOL/LTC) tek başına kâr etmedi; mesajlar "grafiğe bak" uyarısıdır.
+> Ayarlar: `ayarlar.py` → `OTE_*`. Test: `python testler/test_ote.py`.
+
 > **Güncel durum (25.10.2026):** Bot **İZLEME** modunda çalışıyor. 6 aylık backtest'te otomatik
 > sinyaller kârsız çıktı (sinyal başına ortalama -0,26R). Bu yüzden artık işlem sinyali gönderilmiyor.
 > Bot sadece fiyat güçlü bir günlük/4 saatlik bölgeye geldiğinde haber veriyor, onay yapısını sen arıyorsun.
