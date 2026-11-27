@@ -16,7 +16,7 @@ IZLEME_TEKRAR_SAAT = 24
 # Takip edilecek coinler
 # XAUUSDT = altın, XAGUSDT = gümüş (OKX vadeli kontrat fiyatı, 7/24).
 # Not: Efloud bölgeleri sadece BTC/ETH için var; altın/gümüşte şimdilik sadece otomatik bölge uyarıları gelir.
-SEMBOLLER = ["BTCUSDT", "ETHUSDT", "XAUUSDT", "XAGUSDT"]
+SEMBOLLER = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "HYPEUSDT", "XAUUSDT", "XAGUSDT"]
 
 # Onay (confirmation) aranacak düşük zaman dilimleri.
 # Efloud: 4s / 1s / 15dk gibi zaman dilimlerine inip onay arıyor.
@@ -26,7 +26,7 @@ ONAY_ZAMAN_DILIMLERI = ["15m", "1h", "4h"]
 # Destek/direnç bölgelerinin bulunacağı yüksek zaman dilimleri
 BOLGE_ZAMAN_DILIMLERI = ["1d", "4h"]
 
-# Hangi yapılar aransın? (İstemediğini False yap)
+# Eski yapılar: sadece "sinyal" modunda ve backtest.py'de kullanılır (izleme modunda mesaj atmaz)
 YAPILAR = {
     "breaker": True,      # Likidite alıp yapı kırma (Efloud'un en güvendiği)
     "mitigation": True,   # Eski dibi/tepeyi bozmadan yapı kırma
@@ -51,5 +51,19 @@ GUNLUK_OZET = True
 # Bundan daha geç fark edilen yapılar (fiyat çoktan kaçmış olabilir) GÖNDERİLMEZ.
 MAKS_GECIKME_DAKIKA = {"15m": 20, "30m": 25, "1h": 30, "4h": 45}
 
-# Onay adayı: stop mesafesi bundan darsa aday gönderilmez (backtest: %1'den dar stoplar zarar ettirdi)
-ADAY_MIN_STOP_YUZDE = 1.0
+# ----------------------------------------------------------------------------
+# SWEEP → BOS → OTE (Efloud'un kurgusu, 27.11.2026)
+# Sıra: fitille likidite alımı → son kısa vadeli tepenin kırılması (BOS) → Fibonacci 0.62–0.79'a geri çekilme.
+# Bot iki mesaj atar: KURULUM (1/2) kırılım olunca, OTE'YE GELDİ (2/2) fiyat aralığa gelince.
+# Not: Bu kuralın ham hali 3 yıllık backtest'te tek başına kâr etmedi; mesajlar "grafiğe bak" uyarısıdır.
+# ----------------------------------------------------------------------------
+OTE_SEMBOLLER = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "HYPEUSDT"]
+OTE_ZAMAN_DILIMLERI = ["15m", "1h"]
+OTE_FIB = (0.62, 0.79)       # OTE aralığı
+OTE_GIRIS_FIB = 0.705        # aralığın ortası: mesajdaki giriş ve kâğıt takip bu seviyeden
+# Kırılımdan sonra fiyatın OTE'ye gelmesi için en fazla kaç mum beklensin (15dk: 24 saat, 1s: 2 gün)
+OTE_DOLUM_MUM = {"15m": 96, "1h": 48}
+# True: sweep sadece Efloud'un bölgelerinde (bolgeler_manuel.json) aranır. SOL/HYPE'ta Efloud bölgesi yok.
+OTE_SADECE_EFLOUD_BOLGESI = False
+# Stop mesafesi bundan darsa (yüzde) mesaj gönderilmez: çok dar stopu komisyon ve gürültü yer
+OTE_MIN_STOP_YUZDE = 0.5
