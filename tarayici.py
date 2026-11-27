@@ -2,7 +2,9 @@
 Kripto Onay (Confirmation) Alarmı
 ---------------------------------
 Efloud'un "Confirmation (Onay) Mekanizmaları" videosundaki yapıları
-BTC ve ETH üzerinde otomatik arar ve Telegram'a grafikli alarm gönderir.
+otomatik arar ve Telegram'a grafikli alarm gönderir.
+İzleme modunda (varsayılan) gönderilenler: bölge uyarıları + Sweep → BOS → OTE kurulumları
+(bkz. "SWEEP → BOS → OTE" bölümü). Aşağıdaki eski yapılar sadece "sinyal" modunda ve backtest'te kullanılır.
 
 Mantık:
   1) Günlük ve 4 saatlik grafikte önemli destek/direnç bölgeleri bulunur (HTF).
@@ -55,6 +57,7 @@ YAPI_ADI = {
     "mitigation": "Mitigation",
     "sfp": "SFP (Swing Failure)",
     "retest": "Kırılım + Retest",
+    "ote": "Sweep → BOS → OTE",
 }
 YAPI_ACIKLAMA = {
     ("breaker", "long"): "Fiyat destekte eski dibin altındaki likiditeyi aldı, sonra ara tepeyi kırdı.",
@@ -557,7 +560,7 @@ def hala_gecerli(s: Sinyal, df) -> bool:
 # ----------------------------------------------------------------------------
 # GRAFİK
 # ----------------------------------------------------------------------------
-def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vurgu=None):
+def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vurgu=None, ote=None, tum_hedef=True, cizgi_bas=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -606,9 +609,14 @@ def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vu
 
     if s is not None:
         xi = s.i - bas
+        xs = max(0, cizgi_bas - bas) if cizgi_bas is not None else xi  # seviye çizgilerinin başladığı mum
         ax.axvline(xi, color="#f0b90b", linewidth=0.8, linestyle=":", alpha=0.8)
-        cizgiler = [("Giriş", s.giris, "#ffffff"), ("Stop", s.stop, KIRMIZI),
-                    ("Hedef 1", s.tp1, YESIL), ("Hedef 2", s.tp2, YESIL)]
+        cizgiler = [("Giriş", s.giris, "#ffffff"), ("Stop", s.stop, KIRMIZI), ("Hedef 1", s.tp1, YESIL)]
+        if tum_hedef:
+            cizgiler.append(("Hedef 2", s.tp2, YESIL))
+        if ote is not None:
+            ax.fill_between([xs, len(d) + 6], ote[0], ote[1], color="#90caf9", alpha=0.18, zorder=1)
+            ax.text(xs + 0.5, ote[1], " OTE 0.62–0.79", color="#90caf9", fontsize=8, va="bottom")
         if s.geri_cekilme:
             cizgiler.append(("Geri çekilme girişi", s.geri_cekilme, "#90caf9"))
         cizgiler = [cz for cz in cizgiler if ymin - pad <= cz[1] <= ymax + pad]
@@ -616,11 +624,11 @@ def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vu
         bosluk = (ymax - ymin + 2 * pad) * 0.035
         son_y = -1e18
         for ad, y, rk in cizgiler:
-            ax.hlines(y, xi, len(d) - 1, color=rk, linewidth=1.3,
+            ax.hlines(y, xs, len(d) + 6 if cizgi_bas is not None else len(d) - 1, color=rk, linewidth=1.3,
                       linestyles="--" if ad != "Giriş" else "-")
             ty = max(y, son_y + bosluk)
             son_y = ty
-            ax.text(len(d) - 0.5, ty, f" {ad}: {fmt(y)}", color=rk, fontsize=8, va="center")
+            ax.text(len(d) + (6.5 if cizgi_bas is not None else -0.5), ty, f" {ad}: {fmt(y)}", color=rk, fontsize=8, va="center")
         for (ni, nf, et) in s.noktalar:
             if bas <= ni < bit:
                 ax.annotate(et, (ni - bas, nf), xytext=(0, 14 if et in ("Kırılan seviye",) else -16),
@@ -633,7 +641,7 @@ def grafik_ciz(df, s: Sinyal | None, bolgeler, baslik, dosya, mum_sayisi=140, vu
     adim = max(1, len(d) // 8)
     ax.set_xticks(x[::adim])
     ax.set_xticklabels([t.tz_convert(TR_SAAT).strftime("%d.%m %H:%M") for t in d["t"].iloc[::adim]])
-    ax.set_xlim(-1, len(d) + 12)
+    ax.set_xlim(-1, len(d) + (22 if (s is not None and cizgi_bas is not None) else 12))
     ax.set_title(baslik, color=YAZI, fontsize=12, loc="left")
     ax.yaxis.tick_right()
     fig.tight_layout()
@@ -822,15 +830,15 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
             trend_not = (f"{trend} → buradan {yon} trend YÖNÜNDE olur. Backtest'te en iyi davranan "
                          "grup buydu (stopu en az %1 geniş tut)")
     if destek:
-        bak = ["• <b>Breaker:</b> bölgede dip → tepe → daha düşük dip (likidite alımı), sonra o tepenin üstünde kapanış",
-               "• <b>Mitigation:</b> eski dip bozulmadan daha yüksek dip, sonra tepenin üstünde kapanış",
-               "• <b>SFP:</b> fitil eski dibin altına sarkıp mum üstünde kapanır + ardından yeşil mum",
-               "• <b>Ters senaryo:</b> bölge sert kırmızı mumla aşağı kırılır, geri test edip altında kalırsa → destek kaybı (short fikri)"]
+        bak = ["1️⃣ <b>Sweep:</b> fitil son dibin altına sarkar ama mum içeride kapanır (gövde altta kalırsa bekle)",
+               "2️⃣ <b>BOS:</b> düşüşün içindeki son kısa vadeli tepenin üstünde kapanış",
+               "3️⃣ <b>OTE:</b> sweep dibinden yeni tepeye Fibonacci; fiyatın 0.62–0.79'a geri gelmesini bekle",
+               "• Stop sweep dibinin altına. Geri çekilme gelmeden giderse işlem yok."]
     else:
-        bak = ["• <b>Breaker:</b> bölgede tepe → dip → daha yüksek tepe (likidite alımı), sonra o dibin altında kapanış",
-               "• <b>Mitigation:</b> eski tepe aşılmadan daha düşük tepe, sonra dibin altında kapanış",
-               "• <b>SFP:</b> fitil eski tepenin üstüne çıkıp mum altında kapanır + ardından kırmızı mum",
-               "• <b>Ters senaryo:</b> bölge sert yeşil mumla yukarı kırılır, geri test edip üstünde kalırsa → direnç kazanımı (long fikri)"]
+        bak = ["1️⃣ <b>Sweep:</b> fitil son tepenin üstüne çıkar ama mum içeride kapanır (gövde üstte kalırsa bekle)",
+               "2️⃣ <b>BOS:</b> yükselişin içindeki son kısa vadeli dibin altında kapanış",
+               "3️⃣ <b>OTE:</b> sweep tepesinden yeni dibe Fibonacci; fiyatın 0.62–0.79'a geri gelmesini bekle",
+               "• Stop sweep tepesinin üstüne. Geri çekilme gelmeden giderse işlem yok."]
     return "\n".join([
         f"{yildiz}📍 <b>{coin} • {tur.upper()} bölgesine geldi</b>",
         f"Bölge: {fmt(b.alt)} – {fmt(b.ust)} ({b.etiket}"
@@ -839,14 +847,14 @@ def izleme_metni(sembol, b: Bolge, tur: str, fiyat: float, trend: str) -> str:
         f"Fiyat: {fmt(fiyat)}",
         f"Günlük trend (tepe/dip yapısı): {trend_not}",
         "",
-        "<b>15dk / 1 saatlikte şunlardan birini ara:</b>",
+        "<b>15dk / 1 saatlikte şu sırayı ara (Efloud):</b>",
         *bak,
         "",
         "Onay yoksa işlem yok. Stop, yapının bozulduğu noktanın ötesine.",
-        ("🎯 Bu bir Efloud bölgesi: burada onay yapısı oluşursa bot ayrıca ADAY mesajı atar."
+        ("🎯 Bu bir Efloud bölgesi: sıra oluşursa bot KURULUM (1/2) ve OTE'YE GELDİ (2/2) mesajı atar."
          if "manuel" in b.kaynak else
-         "ℹ️ Bu OTOMATİK bir bölge (Efloud'un değil): burada aday mesajı GELMEZ, onayı kendin aramalısın. "
-         "Otomatik bölgeler backtest'te zayıf çıktı, Efloud bölgelerine öncelik ver."),
+         "ℹ️ Bu OTOMATİK bir bölge (Efloud'un değil). Sıra oluşursa bot yine haber verir ama "
+         "Efloud bölgelerine öncelik ver."),
         "ℹ️ Bu bir işlem sinyali değil, sadece izleme uyarısıdır.",
     ])
 
@@ -983,122 +991,7 @@ def trend_iliskisi(trend, yon):
     return "yatay piyasa"
 
 
-def kontrol_listesi(s: Sinyal, rol: str, bolgeler: list, trend_4s: str = "") -> list[str]:
-    """Efloud'un mantığına göre basit kontrol listesi: ✅ uygun, ❌ uygun değil, ➖ nötr."""
-    ilis = trend_iliskisi(s.trend, s.yon)
-    stop_y = abs(s.giris - s.stop) / s.giris * 100
-    arada = [b for b in bolgeler
-             if not (abs(b.alt - s.bolge_alt) < 1e-9 and abs(b.ust - s.bolge_ust) < 1e-9)
-             and min(s.giris, s.tp1) < (b.alt + b.ust) / 2 < max(s.giris, s.tp1)]
-    maddeler = [
-        ("✅", "Efloud'un bölgesinde oluştu"),
-        ("✅", f"Yön bölgenin rolüne uygun ({rol} → {s.yon})"),
-        ("✅" if ilis == "trend yönünde" else "➖" if ilis == "yatay piyasa" else "❌",
-         f"Trend: {ilis}"),
-        ("✅" if trend_iliskisi(trend_4s, s.yon) == "trend yönünde" else
-         "➖" if trend_iliskisi(trend_4s, s.yon) == "yatay piyasa" else "❌",
-         ("4 saatlikte yükselen tepe/dip (HH/HL) var" if s.yon == "long"
-          else "4 saatlikte alçalan tepe/dip (LH/LL) var")
-         if trend_iliskisi(trend_4s, s.yon) == "trend yönünde" else
-         f"4 saatlik yapı: {trend_4s} (Efloud: HH/HL görmeden alımda dikkatli ol)" if s.yon == "long"
-         else f"4 saatlik yapı: {trend_4s}"),
-        ("✅" if stop_y >= 1.0 else "❌", f"Stop en az %1 (%{stop_y:.2f})"),
-        ("✅" if s.rr1 >= 1.5 else "❌", f"Hedef 1 en az 1,5R (R {s.rr1})"),
-        ("✅" if not arada else "❌",
-         "Giriş ile Hedef 1 arasında başka bölge yok" if not arada
-         else f"Hedefe giden yolda başka bölge var ({fmt(arada[0].alt)}–{fmt(arada[0].ust)})"),
-    ]
-    hata = sum(m[0] == "❌" for m in maddeler)
-    if hata == 0:
-        sonuc = "🟩 <b>Sonuç: kurallara uygun aday</b>"
-    elif hata == 1:
-        sonuc = "🟨 <b>Sonuç: bir zayıf noktası var, dikkatli ol</b>"
-    else:
-        sonuc = "🟥 <b>Sonuç: kurallara göre pas geçmek daha uygun</b>"
-    return ["<b>Kontrol listesi:</b>", *[f"{a} {b}" for a, b in maddeler], sonuc]
-
-
-def onay_adayi_metni(s: Sinyal, no: int, aciklama: str, kontrol: list[str] | None = None) -> str:
-    coin = ad(s.sembol)
-    emoji = "🟢" if s.yon == "long" else "🔴"
-    stop_y = abs(s.giris - s.stop) / s.giris * 100
-    ilis = trend_iliskisi(s.trend, s.yon)
-    uyarilar = []
-    if ilis == "trend tersi":
-        uyarilar.append("⚠️ Trend tersi: backtest'te en zayıf grup. Çok net değilse pas geç.")
-    elif ilis == "trend yönünde":
-        uyarilar.append("✅ Trend yönünde: backtest'te en iyi davranan grup.")
-    if stop_y < 1.0:
-        uyarilar.append(f"⚠️ Stop dar (%{stop_y:.2f}): backtest'te %1'den dar stoplar komisyon ve gürültüyle eriyordu.")
-    zaman_tr = pd.Timestamp(s.zaman, tz="UTC").tz_convert(TR_SAAT) + pd.Timedelta(minutes=TF_DAKIKA[s.tf])
-    return "\n".join([
-        f"🎯 <b>ONAY ADAYI • {coin} • {TF_ADI[s.tf]} • {emoji} {s.yon.upper()}</b>",
-        f"Yapı: <b>{YAPI_ADI[s.yapi]}</b>",
-        f"<i>{YAPI_ACIKLAMA[(s.yapi, s.yon)]}</i>",
-        f"Bölge: {s.bolge_etiket} ({fmt(s.bolge_alt)} – {fmt(s.bolge_ust)})",
-        *([f"📝 {aciklama}"] if aciklama else []),
-        f"Günlük trend (tepe/dip): {s.trend} → {ilis}",
-        "",
-        "<b>Efloud'un kuralına göre seviyeler:</b>",
-        f"• Giriş tetiği: {fmt(s.giris)} (onay mumu kapanışı)"
-        + (f"\n• Geri çekilme girişi: {fmt(s.geri_cekilme)} (kırılan seviyenin retesti, Efloud'un tercihi)"
-           if s.geri_cekilme else ""),
-        f"• Stop: {fmt(s.stop)} (%{stop_y:.2f}, yapının bozulduğu yer)",
-        f"• Hedef 1: {fmt(s.tp1)} (R {s.rr1})  •  Hedef 2: {fmt(s.tp2)} (R {s.rr2})",
-        "",
-        *(kontrol or uyarilar),
-        "",
-        f"⏱️ Yapı {zaman_tr.strftime('%H:%M')} kapanışında oluştu ({gecikme_dk(s)} dk önce)",
-        f"📒 Kâğıt takip #{no}: sonucu bot kendisi kaydedecek.",
-        "",
-        "Otomatik tespit, henüz kanıtlanmadı. Tavsiye değildir. Grafikte doğrula, küçük miktar, stopsuz girme.",
-    ])
-
-
-def onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> int:
-    kagit = durum.setdefault("kagit", {"sayac": 0, "acik": [], "kapali": []})
-    n = 0
-    for sembol, a in analizler.items():
-        manuel = {(round(b.alt, 6), round(b.ust, 6)): b for b in a["bolgeler"] if "manuel" in b.kaynak}
-        if not manuel:
-            continue
-        for tf, ss in a["sinyaller"].items():
-            df = a["ltf"][tf]
-            for s in ss:
-                b = manuel.get((round(s.bolge_alt, 6), round(s.bolge_ust, 6)))
-                if b is None or s.i < len(df) - LTF_AYAR[tf]["pencere"] or s.kimlik in gonderilen:
-                    continue
-                isaretle(s.kimlik)
-                if gecikme_dk(s) > ayarlar.MAKS_GECIKME_DAKIKA.get(tf, 30) or not hala_gecerli(s, df):
-                    continue
-                # 1) Bölgenin rolüne uygun yön: destekte long, dirençte short onayı aranır.
-                #    (Kırılım + retest kendi yönünü taşır: kırılan destek short, kırılan direnç long.)
-                rol = "kırılan destek" if s.yon == "short" else "kırılan direnç"
-                if s.yapi != "retest":
-                    ref = float(df["close"].iloc[max(0, s.i - 32)])  # yapıdan önce fiyat nereden geldi
-                    rol = b.rol if b.rol in ("destek", "direnç") else \
-                        ("destek" if ref >= (b.alt + b.ust) / 2 else "direnç")
-                    if (rol == "destek" and s.yon != "long") or (rol == "direnç" and s.yon != "short"):
-                        gh_not("notice", f"Aday elendi (bölge rolü {rol}, yön {s.yon}): {s.kimlik}")
-                        continue
-                # 2) Stop mesafesi: backtest'te %1'den dar stoplar tutarlı şekilde zarar ettirdi
-                stop_y = abs(s.giris - s.stop) / s.giris * 100
-                if stop_y < ayarlar.ADAY_MIN_STOP_YUZDE:
-                    gh_not("notice", f"Aday elendi (stop %{stop_y:.2f} < %{ayarlar.ADAY_MIN_STOP_YUZDE}): {s.kimlik}")
-                    continue
-                kagit["sayac"] += 1
-                no = kagit["sayac"]
-                d = grafik_ciz(df, s, a["bolgeler"],
-                               f"{sembol} • {TF_ADI[tf]} • {YAPI_ADI[s.yapi]} ({s.yon.upper()}) • aday #{no}",
-                               gecici / f"aday_{sembol}_{tf}_{s.i}.png")
-                tg.foto(d, onay_adayi_metni(s, no, b.aciklama, kontrol_listesi(s, rol, a["bolgeler"], a.get("trend_4s", ""))))
-                kagit["acik"].append(dict(
-                    no=no, sembol=sembol, tf=tf, yapi=s.yapi, yon=s.yon, trend=s.trend,
-                    iliski=trend_iliskisi(s.trend, s.yon), giris=s.giris, stop=s.stop, tp1=s.tp1,
-                    rr1=s.rr1, bolge=b.etiket,
-                    zaman=(pd.Timestamp(s.zaman, tz="UTC") + pd.Timedelta(minutes=TF_DAKIKA[tf])).isoformat()))
-                n += 1
-    return n
+# (Eski "onay adayı" mesajları 27.11.2026'da kaldırıldı; yerini aşağıdaki SWEEP → BOS → OTE kurgusu aldı.)
 
 
 def kagit_guncelle(tg, analizler, durum) -> int:
@@ -1167,14 +1060,369 @@ def haftalik_ozet_gerekirse(tg, durum):
     satir = ["📒 <b>Haftalık kâğıt takip özeti</b>",
              f"Son 7 gün: {kagit_istatistik(bu_hafta)}",
              f"Başından beri: {kagit_istatistik(kagit['kapali'])}"]
+    ote = [p for p in kagit["kapali"] if p.get("yapi") == "ote"]
+    satir.append(f"Yeni kurgu (Sweep → BOS → OTE): {kagit_istatistik(ote)}")
     for il in ("trend yönünde", "yatay piyasa", "trend tersi"):
-        grup = [p for p in kagit["kapali"] if p["iliski"] == il]
+        grup = [p for p in ote if p["iliski"] == il]
         if grup:
             satir.append(f"  • {il}: {kagit_istatistik(grup)}")
     satir += [f"Açık aday: {len(kagit['acik'])}", "",
               "En az 30-40 aday birikmeden sonuçlara güvenme; az sayıda işlemde şans çok etkili."]
     tg.mesaj("\n".join(satir))
     durum["son_haftalik"] = hafta
+
+
+# ----------------------------------------------------------------------------
+# SWEEP → BOS → OTE  (Efloud'un tercih ettiği kurgu, 27.11.2026)
+#   1) Fitille likidite alımı: fitil son dibin altına sarkar, mum dibin ÜSTÜNDE kapanır.
+#      Gövde aşağıda kapanırsa sweep değil kırılım sayılır, kurulum yok.
+#   2) BOS: sweep'ten sonra bir mum, düşüşün içindeki son kısa vadeli tepenin üstünde kapanır.
+#      BOS gelmeden sweep tek başına giriş sebebi değildir.
+#   3) Fibonacci: sweep dibi -> kırılım sonrası tepe. Fiyat 0.62–0.79 (OTE) bölgesine geri gelirse giriş.
+#      Geri çekilme vermeden giderse işlem kaçırılmış sayılır (V dönüşü).
+#   4) Stop: sweep dibinin altı (senaryonun geçersiz olduğu yer). Hedef 1: kırılım sonrası tepe.
+#   Short tarafı aynı kuralın aynası. Bot sadece haber verir, işlem açmaz.
+# ----------------------------------------------------------------------------
+@dataclass
+class OteKurulum:
+    sembol: str
+    tf: str
+    yon: str
+    seviye: float          # likiditesi alınan dip (short'ta tepe)
+    seviye_i: int
+    sweep_i: int           # fitili atan mum
+    sweep_fitil: float     # sweep mumunun ucu
+    uc: float              # sweep'ten BOS'a kadar görülen en uç fiyat (stop referansı)
+    uc_i: int
+    bos_seviye: float      # kırılan son kısa vadeli tepe (short'ta dip)
+    bos_seviye_i: int
+    bos_i: int             # kırılımı yapan mum
+    tepe: float            # kırılım sonrası tepe = Fibonacci 0 (short'ta dip)
+    tepe_i: int
+    dolum_i: int | None    # fiyatın giriş seviyesine geldiği mum
+    durum: str             # bekliyor / geldi / iptal: ...
+    breaker_alt: float
+    breaker_ust: float
+    atr: float
+    bolge: Bolge
+    zamanlar: list = field(default_factory=list)
+
+    def _fib(self, oran):
+        return self.tepe - oran * (self.tepe - self.uc)
+
+    @property
+    def giris(self):
+        return self._fib(ayarlar.OTE_GIRIS_FIB)
+
+    @property
+    def ote(self):  # (alt, üst) fiyat olarak
+        a, b = self._fib(ayarlar.OTE_FIB[0]), self._fib(ayarlar.OTE_FIB[1])
+        return (min(a, b), max(a, b))
+
+    @property
+    def stop(self):
+        tampon = 0.1 * self.atr
+        return self.uc - tampon if self.yon == "long" else self.uc + tampon
+
+    @property
+    def risk(self):
+        return abs(self.giris - self.stop)
+
+    @property
+    def rr(self):
+        return round(abs(self.tepe - self.giris) / self.risk, 2) if self.risk else 0.0
+
+    @property
+    def stop_yuzde(self):
+        return self.risk / self.giris * 100
+
+    @property
+    def breaker_cakisiyor(self):
+        a, b = self.ote
+        return self.breaker_alt <= b and self.breaker_ust >= a
+
+    def zaman(self, i):
+        return self.zamanlar[i]
+
+    @property
+    def kimlik(self):
+        return f"OTE|{self.sembol}|{self.tf}|{self.yon}|{self.zaman(self.sweep_i)}"
+
+
+def _ote_tek_yon(df: pd.DataFrame, tf: str, sembol: str, yon: str, bolgeler: list[Bolge]) -> list[OteKurulum]:
+    """Long mantığıyla tarar; short için fiyatlar ters çevrilir (tepe <-> dip)."""
+    s = 1.0 if yon == "long" else -1.0
+    o, c = df["open"].values * s, df["close"].values * s
+    if yon == "long":
+        h, l = df["high"].values, df["low"].values
+    else:
+        h, l = -df["low"].values, -df["high"].values
+    n = len(df)
+    A = atr(df)
+    ay = LTF_AYAR[tf]
+    k, bekle = ay["pivot"], ay["bekleme"]
+    dolum_max = ayarlar.OTE_DOLUM_MUM.get(tf, 48)
+    piv = pivotlar(pd.DataFrame({"high": h, "low": l}), k, k)
+    dipler = [(i, p) for i, p, t in piv if t == "L"]
+    tepeler = [(i, p) for i, p, t in piv if t == "H"]
+    zamanlar = list(df["t"].dt.strftime("%Y-%m-%dT%H:%M"))
+    gercek = lambda x: float(x * s)  # noqa: E731
+    adaylar = [b for b in bolgeler if "manuel" in b.kaynak or b.puan >= ayarlar.IZLEME_MIN_PUAN]
+    if ayarlar.OTE_SADECE_EFLOUD_BOLGESI:
+        adaylar = [b for b in adaylar if "manuel" in b.kaynak]
+    if not adaylar:
+        return []
+
+    out: list[OteKurulum] = []
+    mesgul = -1  # bir kurulum sürerken aynı yönde yenisi aranmaz
+    for pi, pf in dipler:
+        j = next((m for m in range(pi + k + 1, min(n, pi + 400)) if l[m] < pf), None)
+        if j is None or j <= mesgul:
+            continue
+        if c[j] <= pf:          # gövde dibin altında kapandı: sweep değil, kırılım olabilir
+            continue
+        if pf - l[j] > 2.5 * A[j]:  # çok derin sarkma: likidite alımından çok sert düşüş
+            continue
+        bolge = _bolge_bul(adaylar, [gercek(pf), gercek(l[j])], 0.3 * A[j])
+        if bolge is None:
+            continue
+        # Manuel bölgenin rolü yönle çelişiyorsa (dirençte long gibi) atla
+        if bolge.rol == ("direnç" if yon == "long" else "destek"):
+            continue
+        onceki = [(i, p) for i, p in tepeler if i + k <= j and i > pi - 200]
+        if not onceki:
+            continue
+        bi, bp = max(onceki, key=lambda x: x[0])
+        if bp <= c[j]:
+            continue
+        uc, uc_i, bos = l[j], j, None
+        for m in range(j + 1, min(n, j + bekle)):
+            if c[m] < pf:       # sonradan gövde altında kapandı: sweep bozuldu
+                break
+            if l[m] < uc:
+                uc, uc_i = l[m], m
+            if c[m] > bp:
+                bos = m
+                break
+        if bos is None:
+            continue
+        tepe, tepe_i, dolum, durum = h[bos], bos, None, "bekliyor"
+        son = min(n, bos + 1 + dolum_max)
+        for m in range(bos + 1, son):
+            giris = tepe - ayarlar.OTE_GIRIS_FIB * (tepe - uc)
+            if h[m] > tepe:     # tepe uzuyor: bu mumda dolum sayma (temkinli)
+                tepe, tepe_i = h[m], m
+                continue
+            if l[m] <= giris:
+                dolum, durum = m, "geldi"
+                break
+            if c[m] < uc:
+                durum = "iptal: dip kırıldı"
+                mesgul = m
+                break
+        else:
+            if bos + 1 + dolum_max <= n:
+                durum = "iptal: geri çekilme gelmedi"
+        # Breaker bölgesi: kırılan tepeyi yapan mumun gövde üstünden fitil ucuna kadar
+        br_a, br_b = max(o[bi], c[bi]), h[bi]
+        br = sorted([gercek(br_a), gercek(br_b)])
+        kur = OteKurulum(
+            sembol=sembol, tf=tf, yon=yon, seviye=gercek(pf), seviye_i=pi, sweep_i=j, sweep_fitil=gercek(l[j]),
+            uc=gercek(uc), uc_i=uc_i, bos_seviye=gercek(bp), bos_seviye_i=bi, bos_i=bos,
+            tepe=gercek(tepe), tepe_i=tepe_i, dolum_i=dolum, durum=durum,
+            breaker_alt=br[0], breaker_ust=br[1], atr=float(A[bos]), bolge=bolge, zamanlar=zamanlar)
+        out.append(kur)
+        mesgul = max(mesgul, dolum if dolum is not None else (son - 1 if durum.startswith("iptal") else n))
+    return out
+
+
+def ote_tara(df: pd.DataFrame, tf: str, sembol: str, bolgeler: list[Bolge]) -> list[OteKurulum]:
+    return _ote_tek_yon(df, tf, sembol, "long", bolgeler) + _ote_tek_yon(df, tf, sembol, "short", bolgeler)
+
+
+def htf_pin_bar(htf_df: pd.DataFrame | None, an: pd.Timestamp, yon: str, dk: int) -> str:
+    """Sweep mumunun içinde kaldığı büyük zaman dilimi mumu pin bar mı?
+    Döner: 'evet' / 'hayır' / 'kapanmadı'."""
+    if htf_df is None or htf_df.empty:
+        return "hayır"
+    bas = an.floor(f"{dk}min")
+    satir = htf_df[htf_df["t"] == bas]
+    if satir.empty:
+        return "kapanmadı"
+    m = satir.iloc[0]
+    o, h, l, c = m["open"], m["high"], m["low"], m["close"]
+    aralik = h - l
+    if aralik <= 0:
+        return "hayır"
+    govde = abs(c - o)
+    if yon == "long":
+        fitil, kapanis_iyi = min(o, c) - l, (c - l) / aralik >= 0.5
+    else:
+        fitil, kapanis_iyi = h - max(o, c), (h - c) / aralik >= 0.5
+    return "evet" if fitil >= 2 * govde and fitil >= 0.5 * aralik and kapanis_iyi else "hayır"
+
+
+def ote_kontrol(k: OteKurulum, a: dict) -> tuple[list[str], int, int]:
+    """Kontrol listesi. Döner: (satırlar, teyit sayısı, zayıf nokta sayısı)."""
+    yon = k.yon
+    ilis = trend_iliskisi(a["trend"], yon)
+    manuel = "manuel" in k.bolge.kaynak
+    sweep_t = pd.Timestamp(k.zaman(k.sweep_i), tz="UTC")
+    pin_tf = "4h" if k.tf in ("15m", "30m", "1h") else "1d"
+    pin_df = a["htf"].get(pin_tf) if pin_tf in a["htf"] else a["ltf"].get(pin_tf)
+    pin = htf_pin_bar(pin_df, sweep_t, yon, TF_DAKIKA[pin_tf])
+    hedef = k.tepe
+    arada = [b for b in a["bolgeler"] if b is not k.bolge and min(k.giris, hedef) < (b.alt + b.ust) / 2 < max(k.giris, hedef)]
+    maddeler = [
+        ("✅" if manuel else "➖", "Efloud'un bölgesinde" if manuel else f"Otomatik bölgede ({k.bolge.etiket}, Efloud'un değil)"),
+        ("✅" if ilis in ("trend tersi", "yatay piyasa") else "➖",
+         f"Trend: {a['trend']} → {ilis}"
+         + (" (Efloud onayı en çok burada kullanıyor; kârı parça parça al)" if ilis != "trend yönünde"
+            else " (güçlü trendde Efloud onay beklemeyi şart görmüyor)")),
+        ("✅" if pin == "evet" else "➖",
+         f"{TF_ADI[pin_tf]} mumunda pin bar" + (" var" if pin == "evet" else " henüz kapanmadı" if pin == "kapanmadı" else " yok")),
+        ("✅" if k.breaker_cakisiyor else "➖",
+         "Breaker bölgesi OTE ile çakışıyor" if k.breaker_cakisiyor else "Breaker bölgesi OTE ile çakışmıyor"),
+        ("✅" if k.stop_yuzde >= 1.0 else "⚠️", f"Stop mesafesi %{k.stop_yuzde:.2f}"
+         + ("" if k.stop_yuzde >= 1.0 else " (dar: komisyon ve gürültü payı büyük)")),
+        ("✅" if k.rr >= 1.5 else "⚠️", f"Hedef 1'e kadar R {k.rr}"),
+        ("✅" if not arada else "⚠️", "Hedefe giden yolda başka bölge yok" if not arada
+         else f"Hedefe giden yolda bölge var ({fmt(arada[0].alt)}–{fmt(arada[0].ust)})"),
+    ]
+    teyit = sum(1 for i in (0, 2, 3) if maddeler[i][0] == "✅")
+    zayif = sum(m[0] == "⚠️" for m in maddeler)
+    return [f"{i} {m}" for i, m in maddeler], teyit, zayif
+
+
+def _ote_sinyal(k: OteKurulum, i: int) -> Sinyal:
+    """Grafik fonksiyonunu kullanabilmek için kurulumu Sinyal'e çevirir."""
+    alt_ust = "dip" if k.yon == "long" else "tepe"
+    return Sinyal(k.sembol, k.tf, "ote", k.yon, i, k.zaman(i), float(k.giris), float(k.stop), None,
+                  tp1=float(k.tepe), tp2=float(k.tepe), rr1=k.rr, rr2=k.rr,
+                  bolge_alt=k.bolge.alt, bolge_ust=k.bolge.ust, bolge_puan=k.bolge.puan, bolge_etiket=k.bolge.etiket,
+                  noktalar=[(k.seviye_i, k.seviye, f"Önceki {alt_ust}"), (k.uc_i, k.uc, "Sweep (fitil)"),
+                            (k.bos_seviye_i, k.bos_seviye, "Kırılan tepe (BOS)" if k.yon == "long" else "Kırılan dip (BOS)")])
+
+
+def ote_kurulum_metni(k: OteKurulum, a: dict) -> str:
+    emoji = "🟢" if k.yon == "long" else "🔴"
+    dip = "dibin" if k.yon == "long" else "tepenin"
+    alti = "altına" if k.yon == "long" else "üstüne"
+    a1, a2 = k.ote
+    zaman_tr = pd.Timestamp(k.zaman(k.bos_i), tz="UTC").tz_convert(TR_SAAT) + pd.Timedelta(minutes=TF_DAKIKA[k.tf])
+    return "\n".join([
+        f"🧩 <b>KURULUM OLUŞTU (1/2) • {ad(k.sembol)} • {TF_ADI[k.tf]} • {emoji} {k.yon.upper()}</b>",
+        f"Bölge: {k.bolge.etiket} ({fmt(k.bolge.alt)} – {fmt(k.bolge.ust)})",
+        *([f"📝 {k.bolge.aciklama}"] if k.bolge.aciklama else []),
+        "",
+        f"✅ Likidite fitille alındı: fitil {fmt(k.seviye)} {dip} {alti} sarktı ({fmt(k.sweep_fitil)}), mum içeride kapandı",
+        f"✅ Son kısa vadeli {'tepe' if k.yon == 'long' else 'dip'} kırıldı (BOS): {fmt(k.bos_seviye)}",
+        f"⏳ Şimdi OTE'ye geri çekilme bekleniyor: <b>{fmt(a1)} – {fmt(a2)}</b> (Fibonacci 0.62–0.79)",
+        f"   Stop referansı: {fmt(k.stop)} (sweep {'dibinin altı' if k.yon == 'long' else 'tepesinin üstü'})",
+        "",
+        "ℹ️ Fiyat yeni " + ("tepe" if k.yon == "long" else "dip") + " yaptıkça OTE aralığı kayar. Fiyat bu aralığa gelirse "
+        "2. mesajı atacağım. Gelmeden giderse işlem yok (V dönüşü, kaçırıldı).",
+        f"⏱️ Kırılım {zaman_tr.strftime('%d.%m %H:%M')} kapanışında oldu",
+        "Yatırım tavsiyesi değildir.",
+    ])
+
+
+def ote_geldi_metni(k: OteKurulum, a: dict, no: int) -> str:
+    emoji = "🟢" if k.yon == "long" else "🔴"
+    a1, a2 = k.ote
+    satirlar, teyit, zayif = ote_kontrol(k, a)
+    if zayif == 0 and teyit >= 2:
+        sonuc = f"🟩 <b>Sonuç: kurallara uygun, teyit {teyit}/3</b>"
+    elif zayif == 0:
+        sonuc = f"🟨 <b>Sonuç: kurallara uygun ama ek teyit az ({teyit}/3)</b>"
+    elif zayif == 1:
+        sonuc = f"🟨 <b>Sonuç: 1 zayıf nokta var, dikkatli ol (teyit {teyit}/3)</b>"
+    else:
+        sonuc = f"🟥 <b>Sonuç: {zayif} zayıf nokta, pas geçmek daha uygun (teyit {teyit}/3)</b>"
+    zaman_tr = pd.Timestamp(k.zaman(k.dolum_i), tz="UTC").tz_convert(TR_SAAT) + pd.Timedelta(minutes=TF_DAKIKA[k.tf])
+    return "\n".join([
+        f"🎯 <b>OTE'YE GELDİ (2/2) • {ad(k.sembol)} • {TF_ADI[k.tf]} • {emoji} {k.yon.upper()}</b>",
+        f"Sıra tamam: fitille likidite alımı → BOS ({fmt(k.bos_seviye)}) → OTE'ye geri çekilme",
+        f"Bölge: {k.bolge.etiket} ({fmt(k.bolge.alt)} – {fmt(k.bolge.ust)})",
+        "",
+        f"• OTE aralığı: {fmt(a1)} – {fmt(a2)}",
+        f"• Giriş (0.705): <b>{fmt(k.giris)}</b>",
+        f"• Stop: <b>{fmt(k.stop)}</b> (%{k.stop_yuzde:.2f}, sweep {'dibinin altı' if k.yon == 'long' else 'tepesinin üstü'})",
+        f"• Hedef 1: {fmt(k.tepe)} (kırılım sonrası {'tepe' if k.yon == 'long' else 'dip'}, R {k.rr})",
+        f"• Breaker bölgesi: {fmt(k.breaker_alt)} – {fmt(k.breaker_ust)}",
+        "",
+        "<b>Kontrol listesi:</b>",
+        *satirlar,
+        sonuc,
+        "",
+        f"⏱️ Fiyat {zaman_tr.strftime('%d.%m %H:%M')} kapanışlı mumda OTE'ye geldi",
+        f"📒 Kâğıt takip #{no}: sonucu bot kendisi kaydedecek.",
+        "Otomatik tespit. Grafikte doğrula, stopsuz girme. Yatırım tavsiyesi değildir.",
+    ])
+
+
+def _ote_hala_gecerli(k: OteKurulum, df) -> bool:
+    """Dolumdan sonra stop ya da hedef çoktan görüldüyse mesaj bayattır."""
+    sonra = df.iloc[k.dolum_i + 1:]
+    if sonra.empty:
+        return True
+    if k.yon == "long":
+        return sonra["low"].min() > k.stop and sonra["high"].max() < k.tepe
+    return sonra["high"].max() < k.stop and sonra["low"].min() > k.tepe
+
+
+def ote_alarm_tara(tg, analizler, durum, gecici, gonderilen, isaretle) -> tuple[int, int]:
+    """Kurulum (1/2) ve OTE'ye geldi (2/2) mesajlarını gönderir, 2/2'de kâğıt takip açar."""
+    kagit = durum.setdefault("kagit", {"sayac": 0, "acik": [], "kapali": []})
+    n1 = n2 = 0
+    for sembol, a in analizler.items():
+        if sembol not in ayarlar.OTE_SEMBOLLER:
+            continue
+        for tf in ayarlar.OTE_ZAMAN_DILIMLERI:
+            df = a["ltf"].get(tf)
+            if df is None or len(df) < 60:
+                continue
+            pencere = LTF_AYAR[tf]["pencere"]
+            sinir = len(df) - pencere
+            maks_gec = ayarlar.MAKS_GECIKME_DAKIKA.get(tf, 30)
+            for k in ote_tara(df, tf, sembol, a["bolgeler"]):
+                if k.stop_yuzde < ayarlar.OTE_MIN_STOP_YUZDE:
+                    continue
+                gec = lambda i: int((pd.Timestamp.now(tz="UTC") - pd.Timestamp(k.zaman(i), tz="UTC")  # noqa: E731
+                                     - pd.Timedelta(minutes=TF_DAKIKA[tf])).total_seconds() // 60)
+                id1, id2 = k.kimlik + "|1", k.kimlik + "|2"
+                # 1/2: kırılım taze, henüz OTE'ye gelmedi
+                if k.bos_i >= sinir and k.durum == "bekliyor" and id1 not in gonderilen:
+                    isaretle(id1)
+                    if gec(k.bos_i) <= maks_gec:
+                        s = _ote_sinyal(k, k.bos_i)
+                        d = grafik_ciz(df, s, a["bolgeler"], f"{sembol} • {TF_ADI[tf]} • Sweep → BOS → OTE bekleniyor",
+                                       gecici / f"ote1_{sembol}_{tf}_{k.bos_i}.png", ote=k.ote, tum_hedef=False, cizgi_bas=k.bos_i)
+                        tg.foto(d, ote_kurulum_metni(k, a))
+                        n1 += 1
+                    else:
+                        gh_not("notice", f"Geç kalınmış kurulum gönderilmedi ({gec(k.bos_i)} dk): {id1}")
+                # 2/2: fiyat OTE'ye geldi
+                if k.durum == "geldi" and k.dolum_i >= sinir and id2 not in gonderilen:
+                    isaretle(id2)
+                    isaretle(id1)
+                    if gec(k.dolum_i) > maks_gec or not _ote_hala_gecerli(k, df):
+                        gh_not("notice", f"OTE mesajı bayat, gönderilmedi: {id2}")
+                        continue
+                    kagit["sayac"] += 1
+                    no = kagit["sayac"]
+                    s = _ote_sinyal(k, k.dolum_i)
+                    d = grafik_ciz(df, s, a["bolgeler"], f"{sembol} • {TF_ADI[tf]} • OTE'ye geldi ({k.yon.upper()}) • #{no}",
+                                   gecici / f"ote2_{sembol}_{tf}_{k.dolum_i}.png", ote=k.ote, tum_hedef=False, cizgi_bas=k.bos_i)
+                    tg.foto(d, ote_geldi_metni(k, a, no))
+                    _, teyit, zayif = ote_kontrol(k, a)
+                    kagit["acik"].append(dict(
+                        no=no, sembol=sembol, tf=tf, yapi="ote", yon=k.yon, trend=a["trend"],
+                        iliski=trend_iliskisi(a["trend"], k.yon), giris=k.giris, stop=k.stop, tp1=k.tepe,
+                        rr1=k.rr, bolge=k.bolge.etiket, teyit=teyit, zayif=zayif,
+                        zaman=pd.Timestamp(k.zaman(k.dolum_i), tz="UTC").isoformat()))
+                    n2 += 1
+    return n1, n2
 
 
 def gh_not(seviye, mesaj):
@@ -1230,9 +1478,10 @@ def calistir(mod: str):
         tg.mesaj("✅ <b>Bot İZLEME moduna geçti.</b>\n\n"
                  "Artık giriş/stop/hedef içeren işlem sinyali gönderilmeyecek "
                  "(backtest'te otomatik sinyaller kârsız çıktı).\n\n"
-                 "Bunun yerine fiyat günlük/4 saatlik <b>güçlü bir bölgeye</b> geldiğinde "
-                 "haber vereceğim. O zaman grafiği açıp Efloud'un onay yapılarını sen arayacaksın. "
-                 "Mesajda neye bakman gerektiği yazacak.\n\nGüncel bölge haritası:")
+                 "Fiyat günlük/4 saatlik <b>güçlü bir bölgeye</b> geldiğinde haber vereceğim. "
+                 "Ayrıca Efloud'un kurgusu (fitille likidite alımı → BOS → OTE'ye geri çekilme) "
+                 "BTC, ETH, SOL ve HYPE'ta oluşursa iki aşamalı mesaj gelecek: KURULUM (1/2) ve OTE'YE GELDİ (2/2).\n\n"
+                 "Güncel bölge haritası:")
         ozet_gonder(tg, analizler, gecici)
 
     elif mod == "test":
@@ -1260,10 +1509,10 @@ def calistir(mod: str):
 
     elif ayarlar.CALISMA_MODU == "izleme":  # tara (izleme modu)
         n = izleme_tara(tg, analizler, durum, gecici)
-        n_aday = onay_adayi_tara(tg, analizler, durum, gecici, gonderilen, isaretle)
+        n_kur, n_aday = ote_alarm_tara(tg, analizler, durum, gecici, gonderilen, isaretle)
         n_kapali = kagit_guncelle(tg, analizler, durum)
         haftalik_ozet_gerekirse(tg, durum)
-        gh_not("notice", f"izleme uyarısı {n}, onay adayı {n_aday}, kapanan kâğıt {n_kapali}, "
+        gh_not("notice", f"izleme uyarısı {n}, OTE kurulum {n_kur}, OTE'ye gelen {n_aday}, kapanan kâğıt {n_kapali}, "
                f"açık kâğıt {len(durum.get('kagit', {}).get('acik', []))}")
         for sembol, an in analizler.items():  # Actions ekranında kısa durum notu
             f = an["fiyat"]

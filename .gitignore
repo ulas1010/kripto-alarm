@@ -1,3 +1,5 @@
 _grafikler/
 __pycache__/
 *.pyc
+testler/_kuru/
+testler/_ornek_*
