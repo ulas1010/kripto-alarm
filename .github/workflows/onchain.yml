@@ -1,0 +1,54 @@
+name: On-chain Uyari
+
+on:
+  schedule:
+    # Saatte bir. GitHub zamanlayıcısı bazen atlar; bot kaçırdığı mumları bir sonraki çalışmada yakalar.
+    - cron: "23 * * * *"
+  workflow_dispatch:
+    inputs:
+      mod:
+        description: "test = özeti hemen gönder"
+        type: choice
+        default: test
+        options: [test, tara]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: onchain-uyari
+  cancel-in-progress: false
+
+jobs:
+  calistir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # en güncel onchain_durum.json ile başla (çift mesajı önler)
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Paketleri kur
+        run: pip install -r requirements.txt
+
+      - name: On-chain kontrol
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python onchain_uyari.py --mod "${{ inputs.mod || 'tara' }}"
+
+      - name: Durumu kaydet
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain onchain_durum.json)" ]; then
+            git config user.name "kripto-alarm-bot"
+            git config user.email "kripto-alarm-bot@users.noreply.github.com"
+            git add onchain_durum.json
+            git commit -m "on-chain durum"
+            git push || (git pull --rebase && git push)
+          fi
