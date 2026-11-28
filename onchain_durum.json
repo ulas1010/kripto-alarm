@@ -1,35 +1,35 @@
 {
  "onchain": {
   "rp": {
-   "deger": 53033.202053233894,
-   "tarih": "2026-11-26",
+   "deger": 52975.91691121155,
+   "tarih": "2026-11-27",
    "kaynak": "Coin Metrics"
   },
-  "_rp_gun": "2026-11-27",
+  "_rp_gun": "2026-11-28",
   "tmm": {
-   "deger": 77990.13,
-   "tarih": "2026-11-20",
+   "deger": 77893.21,
+   "tarih": "2026-11-21",
    "kaynak": "BGeometrics (7 gün gecikmeli)"
   },
-  "_tmm_gun": "2026-11-27",
+  "_tmm_gun": "2026-11-28",
   "sth_rp": {
-   "deger": 73129.19,
-   "tarih": "2026-11-20",
+   "deger": 72827.57,
+   "tarih": "2026-11-21",
    "kaynak": "BGeometrics (7 gün gecikmeli)"
   },
-  "_sth_rp_gun": "2026-11-27",
+  "_sth_rp_gun": "2026-11-28",
   "lth_rp": {
-   "deger": 48337.19,
-   "tarih": "2026-11-20",
+   "deger": 48297.34,
+   "tarih": "2026-11-21",
    "kaynak": "BGeometrics (7 gün gecikmeli)"
   },
-  "_lth_rp_gun": "2026-11-27"
+  "_lth_rp_gun": "2026-11-28"
  },
  "bg_sayac": {
-  "gun": "2026-11-27",
-  "gun_n": 7,
-  "saat": "2026-11-27T12",
-  "saat_n": 7
+  "gun": "2026-11-28",
+  "gun_n": 3,
+  "saat": "2026-11-28T04",
+  "saat_n": 3
  },
  "spot": {
   "Realized Price (piyasanın ortalama maliyeti)": {
@@ -49,8 +49,8 @@
    "seviye": 48337.19
   }
  },
- "son_saat": "2026-11-27T21:00:00+00:00",
- "son_gun_BTCUSDT": "2026-11-26T00:00:00+00:00",
- "son_gun_ETHUSDT": "2026-11-26T00:00:00+00:00",
+ "son_saat": "2026-11-28T03:00:00+00:00",
+ "son_gun_BTCUSDT": "2026-11-27T00:00:00+00:00",
+ "son_gun_ETHUSDT": "2026-11-27T00:00:00+00:00",
  "son_ozet": "2026-11-27"
 }
